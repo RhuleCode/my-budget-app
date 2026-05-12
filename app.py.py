@@ -1,8 +1,38 @@
 import streamlit as st
 from bud import Category, create_spend_chart
-
+import plotly.express as px  # 
+import pandas as pd          # 
 st.set_page_config(page_title="Budget App", layout="wide")
 st.title("💰 My Personal Budget App")
+
+# --- ADD THIS SECTION ---
+st.markdown("""
+### Welcome to your financial dashboard!
+This application helps you manage your money using **Category-based budgeting**. 
+* **Create** custom categories like Food, Rent, or Entertainment.
+* **Track** deposits and withdrawals with detailed descriptions.
+* **Analyze** your spending habits with an automated visual chart.
+""")
+st.divider()
+
+# --- NEW VISUAL CHART SECTION ---
+st.subheader("📊 Spending Breakdown")
+
+# We gather the data from your categories
+chart_data = {
+    "Category": [cat.name for cat in st.session_state.categories.values()],
+    "Spent": [sum(-item['amount'] for item in cat.ledger if item['amount'] < 0) 
+            for cat in st.session_state.categories.values()]
+}
+
+# Only show the chart if you've actually spent money!
+if sum(chart_data["Spent"]) > 0:
+    fig = px.pie(chart_data, values='Spent', names='Category', hole=0.4,
+                color_discrete_sequence=px.colors.sequential.RdBu)
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("No withdrawals recorded yet. Spend some money to see the chart!")
+# ------------------------
 
 # Initialize data storage
 if 'categories' not in st.session_state:
@@ -16,6 +46,11 @@ with st.sidebar:
         if name and name not in st.session_state.categories:
             st.session_state.categories[name] = Category(name)
             st.success(f"Added {name}")
+    st.divider()
+    st.info("""
+    **Project Info:** Built with Python & Streamlit.  
+    Logic based on the *freeCodeCamp* Budget App certification.
+    """)
 
 # Main app logic
 if st.session_state.categories:
