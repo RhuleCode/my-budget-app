@@ -51,10 +51,8 @@ with st.sidebar:
             st.session_state.categories[name] = Category(name)
             st.success(f"Added {name}")
     st.divider()
-    st.info("""
-    **Project Info:** Built with Python & Streamlit.  
-    Logic based on the *freeCodeCamp* Budget App certification.
-    """)
+    st.caption("v1.0 | Created by RhuleCode.")
+    st.sidebar.markdown("[Contact Support](mailto:nkbrhule@gmail.com)")
 
 # Main app logic
 if st.session_state.categories:
