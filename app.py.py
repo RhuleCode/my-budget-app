@@ -15,23 +15,27 @@ This application helps you manage your money using **Category-based budgeting**.
 """)
 st.divider()
 
-# --- NEW VISUAL CHART SECTION ---
-st.subheader("📊 Spending Breakdown")
+    
+    # --- PRO CHART SECTION ---
+    # 1. First, check if categories even exist
+if 'categories' in st.session_state and st.session_state.categories:
+        st.subheader("📊 Spending Breakdown")
+        
+        # 2. Prepare the data
+        chart_data = {
+            "Category": [cat.name for cat in st.session_state.categories.values()],
+            "Spent": [sum(-item['amount'] for item in cat.ledger if item['amount'] < 0) 
+                      for cat in st.session_state.categories.values()]
+        }
+        
+        # 3. Only draw the chart if money has actually been spent
+        if sum(chart_data["Spent"]) > 0:
+            fig = px.pie(chart_data, values='Spent', names='Category', hole=0.4,
+                         color_discrete_sequence=px.colors.sequential.RdBu)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("💡 Tip: Add a 'Withdrawal' to see your spending breakdown here!")
 
-# We gather the data from your categories
-chart_data = {
-    "Category": [cat.name for cat in st.session_state.categories.values()],
-    "Spent": [sum(-item['amount'] for item in cat.ledger if item['amount'] < 0) 
-            for cat in st.session_state.categories.values()]
-}
-
-# Only show the chart if you've actually spent money!
-if sum(chart_data["Spent"]) > 0:
-    fig = px.pie(chart_data, values='Spent', names='Category', hole=0.4,
-                color_discrete_sequence=px.colors.sequential.RdBu)
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("No withdrawals recorded yet. Spend some money to see the chart!")
 # ------------------------
 
 # Initialize data storage
