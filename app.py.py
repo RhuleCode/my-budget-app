@@ -46,20 +46,20 @@ else:
     st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
 
 # --- 4. SIDEBAR (ADDING DATA) ---
-with st.sidebar:
-    st.header("Add Transaction")
-    new_cat = st.text_input("Category Name")
-    new_amt = st.number_input("Amount", step=1.0)
-   if st.button("Save to Vault"):
-        if new_cat and new_amt > 0:
-            # 1. Create a new row of data
-            new_data = pd.DataFrame([{"Category": new_cat, "Amount": new_amt}])
-            
-            # 2. Get existing data, add new row, and update the sheet
-            updated_df = pd.concat([df, new_data], ignore_index=True)
-            conn.update(data=updated_df)
-            
-            st.success(f"Saved {new_cat} to your vault!")
-            st.rerun() # Refresh the page to show the new data
-        else:
-            st.warning("Please enter a category and an amount.")
+    with st.sidebar:
+        st.header("Add Transaction")
+        new_cat = st.text_input("Category Name")
+        new_amt = st.number_input("Amount", step=1.0)
+    if st.button("Save to Vault"):
+            if new_cat and new_amt > 0:
+                # 1. Create a new row of data
+                new_data = pd.DataFrame([{"Category": new_cat, "Amount": new_amt}])
+                
+                # 2. Get existing data, add new row, and update the sheet
+                updated_df = pd.concat([df, new_data], ignore_index=True)
+                conn.update(data=updated_df)
+                
+                st.success(f"Saved {new_cat} to your vault!")
+                st.rerun() # Refresh the page to show the new data
+            else:
+                st.warning("Please enter a category and an amount.")
