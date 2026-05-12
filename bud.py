@@ -1,4 +1,5 @@
 
+
 class Category:
     def __init__(self, name):
         self.name = name
@@ -62,5 +63,40 @@ def create_spend_chart(categories):
         lines.append(line)
 
     return '\n'.join(lines)
+
+def create_spend_chart(categories):
+    withdrawals = []
+    for cat in categories:
+        total = sum(-item['amount'] for item in cat.ledger if item['amount'] < 0)
+        withdrawals.append(total)
+
+    total_spent = sum(withdrawals)
+    
+    # --- FIX STARTS HERE ---
+    if total_spent == 0:
+        return "No spending recorded yet to generate a chart!"
+    # --- FIX ENDS HERE ---
+
+    percentages = [int((w / total_spent) * 100) // 10 * 10 for w in withdrawals]
+
+    lines = ['Percentage spent by category']
+    for i in range(100, -1, -10):
+        line = str(i).rjust(3) + '| '
+        for p in percentages:
+            line += 'o  ' if p >= i else '   '
+        lines.append(line)
+
+    lines.append('    -' + '---' * len(categories))
+
+    max_len = max(len(cat.name) for cat in categories)
+    for i in range(max_len):
+        line = '     '
+        for cat in categories:
+            line += (cat.name[i] if i < len(cat.name) else ' ') + '  '
+        lines.append(line)
+
+    return '\n'.join(lines)
+
+
 
 
