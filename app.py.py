@@ -4,16 +4,22 @@ from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 import pandas as pd
 # Simple Password Gate
+# Updated Login Gate with Username
 if "password_correct" not in st.session_state:
-    st.title("🔐 Secure Login")
-    pwd = st.text_input("Enter Vault Password", type="password")
-    if st.button("Unlock"):
-        if pwd == "YourSecretPassword123": # Change this!
+    st.title("🔐 Secure Vault Login")
+    
+    # Add the username field
+    user = st.text_input("Username")
+    pwd = st.text_input("Password", type="password")
+    
+    if st.button("Unlock Vault"):
+        # Now we check BOTH
+        if user == "Rhule" and pwd == "YourSecretPassword123": 
             st.session_state["password_correct"] = True
             st.rerun()
         else:
-            st.error("Incorrect Password")
-    st.stop() # Stops the rest of the app from loading until unlocked
+            st.error("Invalid Credentials")
+    st.stop()
 
 # --- 1. SETTINGS & STORAGE ---
 st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
