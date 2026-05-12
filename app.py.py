@@ -1,7 +1,19 @@
+# Simple Password Gate
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 import pandas as pd
+# Simple Password Gate
+if "password_correct" not in st.session_state:
+    st.title("🔐 Secure Login")
+    pwd = st.text_input("Enter Vault Password", type="password")
+    if st.button("Unlock"):
+        if pwd == "YourSecretPassword123": # Change this!
+            st.session_state["password_correct"] = True
+            st.rerun()
+        else:
+            st.error("Incorrect Password")
+    st.stop() # Stops the rest of the app from loading until unlocked
 
 # --- 1. SETTINGS & STORAGE ---
 st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
@@ -38,8 +50,16 @@ with st.sidebar:
     st.header("Add Transaction")
     new_cat = st.text_input("Category Name")
     new_amt = st.number_input("Amount", step=1.0)
-    
-    if st.button("Save to Vault"):
-        # This is where the magic happens: It writes to your Google Sheet!
-        # [We will add the 'Write' logic here once your connection is tested!]
-        st.success("Transaction Saved!")
+   if st.button("Save to Vault"):
+        if new_cat and new_amt > 0:
+            # 1. Create a new row of data
+            new_data = pd.DataFrame([{"Category": new_cat, "Amount": new_amt}])
+            
+            # 2. Get existing data, add new row, and update the sheet
+            updated_df = pd.concat([df, new_data], ignore_index=True)
+            conn.update(data=updated_df)
+            
+            st.success(f"Saved {new_cat} to your vault!")
+            st.rerun() # Refresh the page to show the new data
+        else:
+            st.warning("Please enter a category and an amount.")
