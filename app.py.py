@@ -2,7 +2,11 @@ import streamlit as st
 from bud import Category, create_spend_chart
 import plotly.express as px  # 
 import pandas as pd          # 
-st.set_page_config(page_title="Budget App", layout="wide")
+st.set_page_config(
+    page_title="Rhule's Budget Dashboard", 
+    page_icon="💰", 
+    layout="wide"
+)
 st.title("💰 My Personal Budget App")
 
 # --- ADD THIS SECTION ---
@@ -51,8 +55,10 @@ with st.sidebar:
             st.session_state.categories[name] = Category(name)
             st.success(f"Added {name}")
     st.divider()
-    st.caption("v1.0 | Created by RhuleCode.")
-    st.sidebar.markdown("[Contact Support](mailto:nkbrhule@gmail.com)")
+    st.info("""
+    **Project Info:** Built with Python & Streamlit.  
+    Logic based on the *freeCodeCamp* Budget App certification.
+    """)
 
 # Main app logic
 if st.session_state.categories:
