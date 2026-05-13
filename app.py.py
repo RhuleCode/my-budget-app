@@ -1,7 +1,8 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
-import plotly.express as px
 import pandas as pd
+#1. BUILD THE CONNECTION FIRST
+conn = st.connection("gsheets", type=GSheetsConnection)
 # Simple Password Gate
 # Create a toggle for Login vs Sign Up
 mode = st.radio("Choose an option", ["Login", "Sign Up"], horizontal=True)
