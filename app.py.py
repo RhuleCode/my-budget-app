@@ -1,24 +1,46 @@
-# Simple Password Gate
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 import pandas as pd
 # Simple Password Gate
-# Updated Login Gate with Username
+# Create a toggle for Login vs Sign Up
+mode = st.radio("Choose an option", ["Login", "Sign Up"], horizontal=True)
+
 if "password_correct" not in st.session_state:
-    st.title("🔐 Secure Vault Login")
+    st.title(f"🔐 {mode}")
     
-    # Add the username field
-    user = st.text_input("Username")
-    pwd = st.text_input("Password", type="password")
-    
-    if st.button("Unlock Vault"):
-        # Now we check BOTH
-        if user == "Rhule" and pwd == "YourSecretPassword123": 
-            st.session_state["password_correct"] = True
-            st.rerun()
-        else:
-            st.error("Invalid Credentials")
+    new_user = st.text_input("Username")
+    new_pwd = st.text_input("Password", type="password")
+
+    if mode == "Sign Up":
+        if st.button("Create Account"):
+            # 1. Load the User list
+            user_df = conn.read(worksheet="Users")
+            
+            # 2. Check if username exists
+            if new_user in user_df['Username'].values:
+                st.error("Username already exists!")
+            elif new_user and new_pwd:
+                # 3. Add to the sheet
+                new_acc = pd.DataFrame([{"Username": new_user, "Password": new_pwd}])
+                updated_users = pd.concat([user_df, new_acc], ignore_index=True)
+                conn.update(worksheet="Users", data=updated_users)
+                st.success("Account created! Now switch to 'Login'.")
+            else:
+                st.warning("Please fill in both fields.")
+
+    elif mode == "Login":
+        if st.button("Unlock"):
+            # Load users to check credentials
+            user_df = conn.read(worksheet="Users")
+            
+            # Check if the combo exists in your sheet
+            if ((user_df['Username'] == new_user) & (user_df['Password'] == new_pwd)).any():
+                st.session_state["password_correct"] = True
+                st.session_state["current_user"] = new_user # Remember who logged in!
+                st.rerun()
+            else:
+                st.error("Invalid Username or Password")
     st.stop()
 
 # --- 1. SETTINGS & STORAGE ---
