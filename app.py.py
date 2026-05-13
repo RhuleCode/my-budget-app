@@ -5,9 +5,10 @@ import pandas as pd
 conn = st.connection("gsheets", type=GSheetsConnection)
 # Simple Password Gate
 # Create a toggle for Login vs Sign Up
-mode = st.radio("Choose an option", ["Login", "Sign Up"], horizontal=True)
 
 if "password_correct" not in st.session_state:
+    mode = st.radio("Choose an option", ["Login", "Sign Up"], horizontal=True)
+
     st.title(f"🔐 {mode}")
     
     new_user = st.text_input("Username")
