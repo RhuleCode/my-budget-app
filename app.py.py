@@ -16,8 +16,11 @@ if "password_correct" not in st.session_state:
 
     if mode == "Sign Up":
         if st.button("Create Account"):
-            # 1. Load the User list
-            user_df = conn.read(worksheet="Users")
+            try:
+                user_df = conn.read(worksheet="Users", ttl=0)
+            except Exception:
+                # If the sheet is totally empty, create a blank table
+                user_df = pd.DataFrame(columns=['Username', 'Password'])
             
             # 2. Check if username exists
             if new_user in user_df['Username'].values:
