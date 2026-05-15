@@ -89,24 +89,23 @@ with st.sidebar:
     new_desc = st.text_input("Description")
     new_cat = st.text_input("Category Name")
     new_amt = st.number_input("Amount", step=1.0)
-
     if st.button("Save to Vault"):
-        if new_cat and new_amt > 0:
-            # 1. Create a row that matches ALL your sheet columns
-            new_data = pd.DataFrame([{
-                "Date": str(new_date),
-                "Description": new_desc,
-                "Category": new_cat,
-                "Amount": new_amt,
-                "User": st.session_state.username  # Keep data private!
-            }])
+    if new_cat and new_amt > 0:
+        # 1. Create the new row
+        new_data = pd.DataFrame([{
+            "Date": str(new_date),
+            "Description": new_desc,
+            "Category": new_cat,
+            "Amount": new_amt,
+            "User": st.session_state.username
+        }])
 
-            # 2. Make sure you are reading from and updating the "Transaction" tab
-            # You might need: df = conn.read(worksheet="Transaction") before this
-            updated_df = pd.concat([df, new_data], ignore_index=True)
-            
-            # CRITICAL: Specify the worksheet so it doesn't overwrite your "Users" tab
-            conn.update(worksheet="Transaction", data=updated_df)
-            
-            st.success(f"Saved {new_cat} to your vault!")
-            st.rerun()
+        # 2. Append to ALL data, not just your filtered 'df'
+        # This preserves other users' records in the vault
+        updated_df = pd.concat([all_data, new_data], ignore_index=True)
+        
+        # 3. Update the specific worksheet
+        conn.update(worksheet="Transaction", data=updated_df)
+        
+        st.success(f"Saved {new_cat} to your vault!")
+        st.rerun()
