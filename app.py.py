@@ -1,7 +1,7 @@
 import streamlit as st
+import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
-import plotly.express as px
 #1. BUILD THE CONNECTION FIRST
 conn = st.connection("gsheets", type=GSheetsConnection)
 # Simple Password Gate
