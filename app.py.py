@@ -63,9 +63,11 @@ st.markdown("""
 st.divider()
 
 # --- 3. LOADING DATA ---
-# This pulls the latest numbers from your "Vault"
-df = conn.read()
+# Load only the transaction data
+all_data = conn.read(worksheet="Transaction")
 
+# Filter: "Show me only the rows where the 'User' column matches my username"
+df = all_data[all_data['User'] == st.session_state.username]
 if not df.empty:
     st.subheader("📊 Your Spending Overview")
     
@@ -79,20 +81,31 @@ else:
     st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
 
 # --- 4. SIDEBAR (ADDING DATA) ---
-    with st.sidebar:
-        st.header("Add Transaction")
-        new_cat = st.text_input("Category Name")
-        new_amt = st.number_input("Amount", step=1.0)
+with st.sidebar:
+    st.header("Add Transaction")
+    # Add the missing inputs to match your sheet headers
+    new_date = st.date_input("Date")
+    new_desc = st.text_input("Description")
+    new_cat = st.text_input("Category Name")
+    new_amt = st.number_input("Amount", step=1.0)
+
     if st.button("Save to Vault"):
-            if new_cat and new_amt > 0:
-                # 1. Create a new row of data
-                new_data = pd.DataFrame([{"Category": new_cat, "Amount": new_amt}])
-                
-                # 2. Get existing data, add new row, and update the sheet
-                updated_df = pd.concat([df, new_data], ignore_index=True)
-                conn.update(data=updated_df)
-                
-                st.success(f"Saved {new_cat} to your vault!")
-                st.rerun() # Refresh the page to show the new data
-            else:
-                st.warning("Please enter a category and an amount.")
+        if new_cat and new_amt > 0:
+            # 1. Create a row that matches ALL your sheet columns
+            new_data = pd.DataFrame([{
+                "Date": str(new_date),
+                "Description": new_desc,
+                "Category": new_cat,
+                "Amount": new_amt,
+                "User": st.session_state.username  # Keep data private!
+            }])
+
+            # 2. Make sure you are reading from and updating the "Transaction" tab
+            # You might need: df = conn.read(worksheet="Transaction") before this
+            updated_df = pd.concat([df, new_data], ignore_index=True)
+            
+            # CRITICAL: Specify the worksheet so it doesn't overwrite your "Users" tab
+            conn.update(worksheet="Transaction", data=updated_df)
+            
+            st.success(f"Saved {new_cat} to your vault!")
+            st.rerun()
