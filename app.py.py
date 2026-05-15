@@ -1,5 +1,5 @@
-import streamlit as st
 import plotly.express as px
+import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 #1. BUILD THE CONNECTION FIRST
@@ -65,8 +65,7 @@ st.divider()
 
 # --- 3. LOADING DATA ---
 # Load only the transaction data
-all_data = conn.read(worksheet="Transaction")
-
+all_data = conn.read(worksheet="Transaction", ttl=0) # ttl=0 disables caching
 # Filter: "Show me only the rows where the 'User' column matches my username"
 df = all_data[all_data['User'] == st.session_state.username]
 if not df.empty:
