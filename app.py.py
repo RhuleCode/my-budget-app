@@ -90,22 +90,22 @@ with st.sidebar:
     new_cat = st.text_input("Category Name")
     new_amt = st.number_input("Amount", step=1.0)
     if st.button("Save to Vault"):
-    if new_cat and new_amt > 0:
-        # 1. Create the new row
-        new_data = pd.DataFrame([{
-            "Date": str(new_date),
-            "Description": new_desc,
-            "Category": new_cat,
-            "Amount": new_amt,
-            "User": st.session_state.username
-        }])
-
-        # 2. Append to ALL data, not just your filtered 'df'
-        # This preserves other users' records in the vault
-        updated_df = pd.concat([all_data, new_data], ignore_index=True)
-        
-        # 3. Update the specific worksheet
-        conn.update(worksheet="Transaction", data=updated_df)
-        
-        st.success(f"Saved {new_cat} to your vault!")
-        st.rerun()
+        if new_cat and new_amt > 0:
+            # 1. Create the new row
+            new_data = pd.DataFrame([{
+                "Date": str(new_date),
+                "Description": new_desc,
+                "Category": new_cat,
+                "Amount": new_amt,
+                "User": st.session_state.username
+            }])
+    
+            # 2. Append to ALL data, not just your filtered 'df'
+            # This preserves other users' records in the vault
+            updated_df = pd.concat([all_data, new_data], ignore_index=True)
+            
+            # 3. Update the specific worksheet
+            conn.update(worksheet="Transaction", data=updated_df)
+            
+            st.success(f"Saved {new_cat} to your vault!")
+            st.rerun()
