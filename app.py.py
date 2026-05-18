@@ -78,7 +78,6 @@ if "username" in st.session_state:
                 </a>
                 
                 
-            </div>
         </div>
         """,
         unsafe_allow_html=True
