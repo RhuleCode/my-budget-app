@@ -1,4 +1,4 @@
-import streamlit as pd
+import streamlit as st  # 🔑 Fixed: Importing streamlit as 'st'
 import pandas as pd
 import plotly.express as px
 import hashlib
