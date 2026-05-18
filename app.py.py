@@ -63,7 +63,7 @@ st.markdown("""
 """)
 st.divider()
 
-# --- 3. LOADING DATA ---
+# --- 3. LOADING & DISPLAYING DATA ---
 # --- 3. LOADING & DISPLAYING DATA ---
 # Everything inside this block only runs IF a user is successfully logged in
 if "username" in st.session_state:
@@ -76,16 +76,36 @@ if "username" in st.session_state:
     
     # 3. Display the dashboard elements safely using the filtered 'df'
     if not df.empty:
-        st.subheader("📊 Your Spending Overview")
+        st.subheader("📊 Your Financial Summary")
+        
+        # --- CALCULATE METRICS ---
+        total_spending = df['Amount'].sum()
+        total_transactions = len(df)
+        avg_spending = df['Amount'].mean() if total_transactions > 0 else 0.0
+        
+        # --- DISPLAY METRICS IN COLUMNS ---
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(label="Total Expenses", value=f"${total_spending:,.2f}")
+        with col2:
+            st.metric(label="Transactions Logged", value=f"{total_transactions}")
+        with col3:
+            st.metric(label="Average Spend", value=f"${avg_spending:,.2f}")
+            
+        st.divider() # Clean separation line
+        
+        # --- CHARTS & LEDGER ---
+        st.subheader("🍕 Spending Breakdown")
         
         # Create and display the Pie Chart
         fig = px.pie(df, values='Amount', names='Category', hole=0.4)
         st.plotly_chart(fig, use_container_width=True)
         
         # Show the raw transaction ledger
+        st.subheader("📋 Transaction History")
         st.dataframe(df, use_container_width=True)
     else:
-        st.info("Your vault is currently empty. Add your first transaction in the sidebar!!![Tap the ' >> ' arrow in the top-left corner to open the authentication vault.]")
+        st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
 
 else:
     # This runs cleanly when no one is logged in yet, preventing any NameErrors
