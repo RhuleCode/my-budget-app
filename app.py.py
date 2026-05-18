@@ -92,8 +92,8 @@ else:
     st.info("🔒 Please log in or sign up in the sidebar to access your secure financial vault.")
 # --- 4. SIDEBAR (ADDING DATA) ---
 # --- 4. SIDEBAR (ADDING DATA & AUTH) ---
+# --- 4. SIDEBAR (ADDING DATA & AUTH) ---
 with st.sidebar:
-    # Check if a user is legitimately logged in first
     if "username" in st.session_state:
         st.header(f"👋 Welcome, {st.session_state.username}!")
         st.subheader("📝 Add Transaction")
@@ -133,7 +133,8 @@ with st.sidebar:
         if st.button("Log Out"):
             del st.session_state["username"]
             st.rerun()
-        else:
+            
+    else:
         st.header("🔐 Vault Authentication")
         
         # 1. Login input fields
@@ -160,5 +161,3 @@ with st.sidebar:
                     st.error("❌ Invalid Username or Password.")
             else:
                 st.warning("Please fill in both fields.")
-            
-          
