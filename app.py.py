@@ -85,7 +85,8 @@ if "username" in st.session_state:
         # Show the raw transaction ledger
         st.dataframe(df, use_container_width=True)
     else:
-        st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
+        st.info("Your vault is currently empty. Add your first transaction in the sidebar!
+        Tap the ' >> ' arrow in the top-left corner to open the authentication vault.")
 
 else:
     # This runs cleanly when no one is logged in yet, preventing any NameErrors
