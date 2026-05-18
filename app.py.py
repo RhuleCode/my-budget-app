@@ -45,8 +45,8 @@ if "username" in st.session_state:
                 conn.update(worksheet="Transaction", data=updated_vault)
                 st.success(f"✅ Saved {new_cat} transaction!")
                 st.rerun()
-            else:
-                st.warning("Please enter a valid category name and an amount greater than 0.")
+        else:
+            st.warning("Please enter a valid category name and an amount greater than 0.")
                 
         st.divider()
         if st.button("Log Out"):
