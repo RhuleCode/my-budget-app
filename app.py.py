@@ -91,30 +91,52 @@ else:
     # This runs cleanly when no one is logged in yet, preventing any NameErrors
     st.info("🔒 Please log in or sign up in the sidebar to access your secure financial vault.")
 # --- 4. SIDEBAR (ADDING DATA) ---
+# --- 4. SIDEBAR (ADDING DATA & AUTH) ---
 with st.sidebar:
-    st.header("Add Transaction")
-    # Add the missing inputs to match your sheet headers
-    new_date = st.date_input("Date")
-    new_desc = st.text_input("Description")
-    new_cat = st.text_input("Category Name")
-    new_amt = st.number_input("Amount", step=1.0)
-    if st.button("Save to Vault"):
-        if new_cat and new_amt > 0:
-            # 1. Create the new row
-            new_data = pd.DataFrame([{
-                "Date": str(new_date),
-                "Description": new_desc,
-                "Category": new_cat,
-                "Amount": new_amt,
-                "User": st.session_state.username
-            }])
-    
-            # 2. Append to ALL data, not just your filtered 'df'
-            # This preserves other users' records in the vault
-            updated_df = pd.concat([all_data, new_data], ignore_index=True)
-            
-            # 3. Update the specific worksheet
-            conn.update(worksheet="Transaction", data=updated_df)
-            
-            st.success(f"Saved {new_cat} to your vault!")
+    # Check if a user is legitimately logged in first
+    if "username" in st.session_state:
+        st.header(f"👋 Welcome, {st.session_state.username}!")
+        st.subheader("📝 Add Transaction")
+        
+        # Inputs matching your Google Sheet columns perfectly
+        new_date = st.date_input("Date")
+        new_desc = st.text_input("Description")
+        new_cat = st.text_input("Category Name")
+        new_amt = st.number_input("Amount", value=0.0, step=1.0)
+        
+        if st.button("Save to Vault"):
+            if new_cat and new_amt > 0:
+                # 1. Build a new row containing all 5 necessary ledger attributes
+                new_entry = pd.DataFrame([{
+                    "Date": str(new_date),
+                    "Description": new_desc,
+                    "Category": new_cat,
+                    "Amount": new_amt,
+                    "User": st.session_state.username
+                }])
+                
+                # 2. Pull the entire transaction history from the sheet safely
+                all_data = conn.read(worksheet="Transaction", ttl=0)
+                
+                # 3. Merge the new entry into the dataset safely
+                updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
+                
+                # 4. Write the structural data back to your Google Sheet
+                conn.update(worksheet="Transaction", data=updated_vault)
+                st.success(f"✅ Saved {new_cat} transaction!")
+                st.rerun()
+            else:
+                st.warning("Please enter a valid category name and an amount greater than 0.")
+                
+        # Simple logout option
+        st.divider()
+        if st.button("Log Out"):
+            del st.session_state["username"]
             st.rerun()
+            
+    else:
+        st.header("🔐 Vault Authentication")
+        st.info("Please log in via your credentials block to view or submit financial transactions.")
+        
+        # This is where your login form inputs (Username/Password fields) live!
+        # Once verified against your 'Users' worksheet, set: st.session_state.username = input_user
