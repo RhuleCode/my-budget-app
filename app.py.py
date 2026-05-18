@@ -82,8 +82,6 @@ if "username" in st.session_state:
 
 # CASE B: NO ONE IS LOGGED IN -> Show a full-screen welcome and auth interface
 else:
-    # CASE B: NO ONE IS LOGGED IN -> Show a clean, premium landing and auth interface
-else:
     # 1. Catchy, welcoming title
     st.title("🌱 Personal Wealth Vault")
     
@@ -158,3 +156,5 @@ else:
                         st.success("🎉 Your vault is ready! Switch over to 'Log In' to get started.")
                 else:
                     st.warning("Please choose a username and password to sign up.")
+    # CASE B: NO ONE IS LOGGED IN -> Show a clean, premium landing and auth interface
+   
