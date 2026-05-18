@@ -139,7 +139,7 @@ with st.sidebar:
         st.title("💰 Secure Budget Vault")
         
         # Check if user needs to authenticate, and show an explicit hint banner
-        if "username" not in st.session_state:
+    if "username" not in st.session_state:
         # --- WELCOME CARD FOR NEW USERS ---
         st.markdown(
             """
