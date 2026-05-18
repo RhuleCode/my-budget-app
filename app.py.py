@@ -82,33 +82,39 @@ if "username" in st.session_state:
 
 # CASE B: NO ONE IS LOGGED IN -> Show a full-screen welcome and auth interface
 else:
-    # Main screen splash layout
-    st.title("🔒 Cyber Financial Vault")
+    # CASE B: NO ONE IS LOGGED IN -> Show a clean, premium landing and auth interface
+else:
+    # 1. Catchy, welcoming title
+    st.title("🌱 Personal Wealth Vault")
     
+    # 2. Convincing, non-technical introduction card
     st.markdown(
         """
-        <div style="background-color: #1E293B; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #3B82F6;">
-            <h3 style="color: #F8FAFC; margin-top: 0;">🛡️ System Access Required</h3>
-            <p style="color: #94A3B8; font-size: 15px; line-height: 1.6;">
-                Welcome to the independent financial tracking vault. To protect your ledger integrity, all data vectors are cryptographically isolated. Please create an encrypted vault identity or authenticate below to decrypt your dashboard workspace.
+        <div style="background-color: #1E293B; padding: 22px; border-radius: 12px; margin-bottom: 25px; border-left: 5px solid #10B981;">
+            <h3 style="color: #F8FAFC; margin-top: 0; font-weight: 600;">Take Control of Your Financial Future</h3>
+            <p style="color: #94A3B8; font-size: 15px; line-height: 1.6; margin-bottom: 0;">
+                Welcome to your personal financial command center. Track your everyday spending, analyze your budget trends with live visual charts, and secure your financial data in real-time. 
+                <br><br>
+                <b>Ready to see where your money goes?</b> Create a private account or log in below to unlock your automated dashboard workspace.
             </p>
         </div>
         """,
         unsafe_allow_html=True
     )
     
-    # Center the login panel cleanly on the main workspace
+    # Center the auth panel cleanly on the main workspace
     auth_col, _ = st.columns([2, 1])
     
     with auth_col:
-        auth_mode = st.radio("Access Level Token", ["Log In", "Sign Up"], horizontal=True)
+        # User-friendly toggle phrasing
+        auth_mode = st.radio("Account Options", ["Log In", "Create an Account"], horizontal=True)
         
-        input_user = st.text_input("Vault Username").strip()
-        input_pass = st.text_input("Master Password", type="password")
+        input_user = st.text_input("Username").strip()
+        input_pass = st.text_input("Password", type="password")
         
         # --- AUTOMATED LOGIN PROCESSING ---
         if auth_mode == "Log In":
-            if st.button("Decrypt & Enter Vault"):
+            if st.button("Unlock My Dashboard"):
                 if input_user and input_pass:
                     users_df = conn.read(worksheet="Users", ttl=0)
                     users_df.columns = users_df.columns.str.strip()
@@ -122,24 +128,23 @@ else:
                     
                     if not match.empty:
                         st.session_state.username = input_user
-                        st.success("🔓 Access Granted. Syncing dashboard matrix...")
+                        st.success("🔓 Access Granted! Loading your financial vault...")
                         st.rerun()
                     else:
-                        st.error("❌ Access Denied: Invalid credentials profile.")
+                        st.error("❌ Incorrect username or password. Please try again.")
                 else:
-                    st.warning("Both verification criteria fields must be populated.")
+                    st.warning("Please enter your username and password to log in.")
                     
         # --- AUTOMATED SIGN UP PROCESSING ---
-        elif auth_mode == "Sign Up":
-            if st.button("Provision New Vault Account"):
+        elif auth_mode == "Create an Account":
+            if st.button("Get Started For Free"):
                 if input_user and input_pass:
                     users_df = conn.read(worksheet="Users", ttl=0)
                     users_df.columns = users_df.columns.str.strip()
                     
                     if input_user in users_df['Username'].values:
-                        st.error("⚠️ Conflict: Username identity already registered in database.")
+                        st.error("⚠️ That username is already taken. Try another one!")
                     else:
-                        # Automate the background hashing write
                         hashed_new_pass = hashlib.sha256(input_pass.encode()).hexdigest()
                         
                         new_user_entry = pd.DataFrame([{
@@ -150,6 +155,6 @@ else:
                         updated_users = pd.concat([users_df, new_user_entry], ignore_index=True)
                         conn.update(worksheet="Users", data=updated_users)
                         
-                        st.success("🎉 Vault provisioned! Toggle option to 'Log In' to clear security checking.")
+                        st.success("🎉 Your vault is ready! Switch over to 'Log In' to get started.")
                 else:
-                    st.warning("Both registration criteria fields must be populated.")
+                    st.warning("Please choose a username and password to sign up.")
