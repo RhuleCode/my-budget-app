@@ -15,7 +15,22 @@ if "username" in st.session_state:
     
     # --- SIDEBAR CONTENT (ONLY FOR LOGGED-IN USERS) ---
     with st.sidebar:
+        # --- SIDEBAR CONTENT (ONLY FOR LOGGED-IN USERS) ---
+    with st.sidebar:
         st.header(f"👋 Welcome, {st.session_state.username}!")
+        
+        # --- NEW CATCHY VISUAL CAPTION ---
+        st.markdown(
+            """
+            <div style="background-color: #0F172A; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #10B981;">
+                <p style="color: #94A3B8; font-size: 13px; line-height: 1.4; margin: 0;">
+                    💡 <b>Vault Ledger Entry:</b> Use the form below to document an expense. Submitting will instantly encrypt the transaction records and sync them directly to your private backend database.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
         st.subheader("📝 Add Transaction")
         
         new_date = st.date_input("Date")
