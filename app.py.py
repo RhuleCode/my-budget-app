@@ -60,6 +60,57 @@ if "username" in st.session_state:
 
     # --- MAIN DASHBOARD CONTENT (ONLY FOR LOGGED-IN USERS) ---
     st.title("💰 Your Secure Budget Vault")
+    # Initialize onboarding step for first-time users if not already present
+    if "onboarding_step" not in st.session_state:
+        st.session_state.onboarding_step = 1  # Start at step 1 for a fresh login session
+
+    # --- AUTOMATED FEATURE HIGHLIGHT TOUR ---
+    # This banner will guide them through 3 quick steps and then disappear forever!
+    if st.session_state.onboarding_step <= 3:
+        if st.session_state.onboarding_step == 1:
+            st.markdown(
+                """
+                <div style="background-color: #1E293B; padding: 18px; border-radius: 10px; border-left: 5px solid #3B82F6; margin-bottom: 20px;">
+                    <h4 style="color: #F8FAFC; margin-top:0;">🚀 Step 1 of 3: The Transaction Sidebar</h4>
+                    <p style="color: #94A3B8; font-size: 14px; margin-bottom: 10px;">
+                        Look over to the left! The sidebar is your data entry command station. Whenever you spend money, type the category and amount there, hit save, and watch your cloud ledger update instantly.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True
+            )
+            if st.button("Next Tip ➡️", key="tour_1"):
+                st.session_state.onboarding_step = 2
+                st.rerun()
+
+        elif st.session_state.onboarding_step == 2:
+            st.markdown(
+                """
+                <div style="background-color: #1E293B; padding: 18px; border-radius: 10px; border-left: 5px solid #10B981; margin-bottom: 20px;">
+                    <h4 style="color: #F8FAFC; margin-top:0;">📊 Step 2 of 3: Live Summary Cards</h4>
+                    <p style="color: #94A3B8; font-size: 14px; margin-bottom: 10px;">
+                        Right below this banner, you will find your high-level financial health cards. They automatically calculate your total expenses, transaction velocity, and average spending habits on the fly.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True
+            )
+            if st.button("Next Tip ➡️", key="tour_2"):
+                st.session_state.onboarding_step = 3
+                st.rerun()
+
+        elif st.session_state.onboarding_step == 3:
+            st.markdown(
+                """
+                <div style="background-color: #1E293B; padding: 18px; border-radius: 10px; border-left: 5px solid #F59E0B; margin-bottom: 20px;">
+                    <h4 style="color: #F8FAFC; margin-top:0;">🍕 Step 3 of 3: Interactive Analytics</h4>
+                    <p style="color: #94A3B8; font-size: 14px; margin-bottom: 10px;">
+                        Scroll down to find your interactive breakdown pie chart and raw history table. You can hover over the slices to look into specific budget slices or sort the table rows directly.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True
+            )
+            if st.button("Got it, Let's Go! 🎉", key="tour_3"):
+                st.session_state.onboarding_step = 4  # Moves past 3, hiding the tour completely
+                st.rerun()
     
     all_data = conn.read(worksheet="Transaction", ttl=0)
     df = all_data[all_data['User'] == st.session_state.username]
