@@ -134,30 +134,30 @@ with st.sidebar:
             del st.session_state["username"]
             st.rerun()
             
-       else:
-            st.header("🔐 Vault Authentication")
-            
-            # 1. Login input fields
-            input_user = st.text_input("Username")
-            input_pass = st.text_input("Password", type="password")
-            
-            if st.button("Log In"):
-                if input_user and input_pass:
-                    # 2. Fetch the credentials database from your 'Users' sheet
-                    users_df = conn.read(worksheet="Users", ttl=0)
-                    
-                    # Clean up column names just in case there are hidden spaces
-                    users_df.columns = users_df.columns.str.strip()
-                    
-                    # 3. Match inputs against the sheet data
-                    match = users_df[(users_df['Username'] == input_user) & (users_df['Password'].astype(str) == str(input_pass))]
-                    
-                    if not match.empty:
-                        # Success! Save user to session state and reload the interface
-                        st.session_state.username = input_user
-                        st.success(f"Welcome back, {input_user}!")
-                        st.rerun()
-                    else:
-                        st.error("❌ Invalid Username or Password.")
+           else:
+                st.header("🔐 Vault Authentication")
+                
+                # 1. Login input fields
+                input_user = st.text_input("Username")
+                input_pass = st.text_input("Password", type="password")
+                
+                if st.button("Log In"):
+                    if input_user and input_pass:
+                        # 2. Fetch the credentials database from your 'Users' sheet
+                        users_df = conn.read(worksheet="Users", ttl=0)
+                        
+                        # Clean up column names just in case there are hidden spaces
+                        users_df.columns = users_df.columns.str.strip()
+                        
+                        # 3. Match inputs against the sheet data
+                        match = users_df[(users_df['Username'] == input_user) & (users_df['Password'].astype(str) == str(input_pass))]
+                        
+                        if not match.empty:
+                            # Success! Save user to session state and reload the interface
+                            st.session_state.username = input_user
+                            st.success(f"Welcome back, {input_user}!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Invalid Username or Password.")
                 else:
                     st.warning("Please fill in both fields.")
