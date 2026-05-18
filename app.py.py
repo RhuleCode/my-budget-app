@@ -57,7 +57,33 @@ if "username" in st.session_state:
         if st.button("Log Out"):
             del st.session_state["username"]
             st.rerun()
-
+        # --- DEVELOPER PROFILE CARD ---
+    # This remains pinned to the bottom of the sidebar for maximum visibility
+    st.sidebar.markdown("---")  # Visual separator line
+    st.sidebar.markdown(
+        """
+        <div style="background-color: #1E293B; padding: 15px; border-radius: 10px; border: 1px solid #334155; text-align: center;">
+            <p style="color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: 600;">
+                👨‍💻 Developed By
+            </p>
+            <h4 style="color: #F8FAFC; margin: 0 0 5px 0; font-size: 16px; font-weight: 700;">
+                Your Name
+            </h4>
+            <p style="color: #10B981; font-size: 13px; margin-bottom: 12px; font-weight: 500;">
+                Cybersecurity & Software Engineer
+            </p>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <a href="https://github.com/yourusername" target="_blank" style="text-decoration: none; background-color: #0F172A; color: #F8FAFC; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid #475569;">
+                    🐙 GitHub
+                </a>
+                <a href="https://linkedin.com/in/yourusername" target="_blank" style="text-decoration: none; background-color: #0077B5; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;">
+                    🔗 LinkedIn
+                </a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     # --- MAIN DASHBOARD CONTENT (ONLY FOR LOGGED-IN USERS) ---
     st.title("💰 Your Secure Budget Vault")
     # Initialize onboarding step for first-time users if not already present
