@@ -64,25 +64,32 @@ st.markdown("""
 st.divider()
 
 # --- 3. LOADING DATA ---
+# --- 3. LOADING & DISPLAYING DATA ---
+# Everything inside this block only runs IF a user is successfully logged in
 if "username" in st.session_state:
     
-    # Load the transaction data cleanly
+    # 1. Load the data cleanly from the Google Sheet
     all_data = conn.read(worksheet="Transaction", ttl=0)
     
-    # Filter: "Show me only the rows where the 'User' column matches my username"
+    # 2. Filter data for the logged-in user
     df = all_data[all_data['User'] == st.session_state.username]
-if not df.empty:
-    st.subheader("📊 Your Spending Overview")
     
-    # Create the Pie Chart using the data from the Google Sheet
-    fig = px.pie(df, values='Amount', names='Category', hole=0.4)
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Show the raw ledger
-    st.dataframe(df, use_container_width=True)
-else:
-    st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
+    # 3. Display the dashboard elements safely using the filtered 'df'
+    if not df.empty:
+        st.subheader("📊 Your Spending Overview")
+        
+        # Create and display the Pie Chart
+        fig = px.pie(df, values='Amount', names='Category', hole=0.4)
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Show the raw transaction ledger
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
 
+else:
+    # This runs cleanly when no one is logged in yet, preventing any NameErrors
+    st.info("🔒 Please log in or sign up in the sidebar to access your secure financial vault.")
 # --- 4. SIDEBAR (ADDING DATA) ---
 with st.sidebar:
     st.header("Add Transaction")
