@@ -64,10 +64,13 @@ st.markdown("""
 st.divider()
 
 # --- 3. LOADING DATA ---
-# Load only the transaction data
-all_data = conn.read(worksheet="Transaction", ttl=0) # ttl=0 disables caching
-# Filter: "Show me only the rows where the 'User' column matches my username"
-df = all_data[all_data['User'] == st.session_state.username]
+if "username" in st.session_state:
+    
+    # Load the transaction data cleanly
+    all_data = conn.read(worksheet="Transaction", ttl=0)
+    
+    # Filter: "Show me only the rows where the 'User' column matches my username"
+    df = all_data[all_data['User'] == st.session_state.username]
 if not df.empty:
     st.subheader("📊 Your Spending Overview")
     
