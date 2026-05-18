@@ -135,6 +135,18 @@ with st.sidebar:
             st.rerun()
             
     else:
+        # --- WELCOME CARD FOR NEW USERS ---
+        st.markdown(
+            """
+            <div style="background-color: #1E293B; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #3B82F6;">
+                <h4 style="color: #F8FAFC; margin-top: 0;">🛡️ Welcome to the Vault</h4>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.5; margin-bottom: 0;">
+                    This is your personal secure financial workspace. Authenticate to unlock your live spending analysis, update your ledgers, and manage your financial records securely.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         st.header("🔐 Vault Authentication")
         
         # 1. Login input fields
