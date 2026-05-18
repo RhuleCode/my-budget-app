@@ -77,7 +77,7 @@ if "username" in st.session_state:
                     🐙 GitHub
                 </a>
                 
-                </a>
+                
             </div>
         </div>
         """,
