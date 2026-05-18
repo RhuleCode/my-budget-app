@@ -1,14 +1,14 @@
-import streamlit as st  # 🔑 Fixed: Importing streamlit as 'st'
+import streamlit as st
 import pandas as pd
 import plotly.express as px
 import hashlib
+from streamlit_gsheets import GSheetsConnection
 
 # --- 1. INITIAL SETUP & CONNECTION ---
 st.set_page_config(page_title="Secure Budget Vault", layout="wide")
 
-# Initialize your Google Sheets connection
-conn = st.connection("gsheets", type="classmethod") # Adjust to your exact connection line if different
-
+# Initialize your Google Sheets connection correctly
+conn = st.connection("gsheets", type=GSheetsConnection)
 # --- 2. AUTHENTICATION GATING ---
 # CASE A: THE USER IS LOGGED IN -> Show the entire functional application
 if "username" in st.session_state:
