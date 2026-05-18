@@ -33,22 +33,18 @@ if "username" in st.session_state:
         new_amt = st.number_input("Amount", min_value=0.01, value=0.0, step=1.0, format="%.2f")
         
         if st.button("Save to Vault"):
-            if new_cat.strip() and new_amt &gt; 0:
-                try:
-                    new_entry = pd.DataFrame([{
-                        "Date": str(new_date),
-                        "Description": new_desc.strip(),
-                        "Category": new_cat.strip(),
-                        "Amount": new_amt,
-                        "User": st.session_state.username
-                    }])
-                    all_data = conn.read(worksheet="Transaction", ttl=0)
-                    updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
-                    conn.update(worksheet="Transaction", data=updated_vault)
-                    st.success(f"✅ Saved {new_cat} transaction!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ Error saving transaction: {str(e)}")
+                new_entry = pd.DataFrame([{
+                    "Date": str(new_date),
+                    "Description": new_desc.strip(),
+                    "Category": new_cat.strip(),
+                    "Amount": new_amt,
+                    "User": st.session_state.username
+                }])
+                all_data = conn.read(worksheet="Transaction", ttl=0)
+                updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
+                conn.update(worksheet="Transaction", data=updated_vault)
+                st.success(f"✅ Saved {new_cat} transaction!")
+                st.rerun()
             else:
                 st.warning("Please enter a valid category name and an amount greater than 0.")
                 
