@@ -13,8 +13,6 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # CASE A: THE USER IS LOGGED IN -> Show the entire functional application
 if "username" in st.session_state:
     
-    # --- SIDEBAR CONTENT (ONLY FOR LOGGED-IN USERS) ---
-    with st.sidebar:
         # --- SIDEBAR CONTENT (ONLY FOR LOGGED-IN USERS) ---
     with st.sidebar:
         st.header(f"👋 Welcome, {st.session_state.username}!")
