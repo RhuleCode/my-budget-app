@@ -11,6 +11,8 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 # --- 2. AUTHENTICATION GATING ---
 if "username" in st.session_state:
+    # --- 2. AUTHENTICATION GATING ---
+if "username" in st.session_state:
     
     # --- SIDEBAR CONTENT ---
     with st.sidebar:
@@ -20,7 +22,7 @@ if "username" in st.session_state:
             """
             <div style="background-color: #0F172A; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #10B981;">
                 <p style="color: #94A3B8; font-size: 13px; line-height: 1.4; margin: 0;">
-                    💡 <b>Vault Ledger Entry:</b> Use the form below to document an expense. Submitting will instantly encrypt the transaction records and sync them directly to your private backend database.
+                    💡 <b>Vault Ledger Entry:</b> Select if this is Income or an Expense to keep your total balance accurate.
                 </p>
             </div>
             """,
@@ -28,6 +30,9 @@ if "username" in st.session_state:
         )
         
         st.subheader("📝 Add Transaction")
+        
+        # FEATURE 1: Transaction Type Toggle
+        tx_type = st.radio("Transaction Type", ["Expense", "Income"], horizontal=True)
         new_date = st.date_input("Date")
         new_desc = st.text_input("Description")
         new_cat = st.text_input("Category Name")
@@ -37,6 +42,7 @@ if "username" in st.session_state:
             if new_cat and new_amt > 0:
                 new_entry = pd.DataFrame([{
                     "Date": str(new_date),
+                    "Type": tx_type,  # Saves the new type to your sheet
                     "Description": new_desc,
                     "Category": new_cat,
                     "Amount": new_amt,
@@ -45,21 +51,123 @@ if "username" in st.session_state:
                 all_data = conn.read(worksheet="Transaction", ttl=0)
                 updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
                 conn.update(worksheet="Transaction", data=updated_vault)
-                st.success(f"✅ Saved {new_cat} transaction!")
+                st.success(f"✅ Saved {new_cat} {tx_type.lower()}!")
                 st.rerun()
             else:
                 st.warning("Please enter a valid category name and an amount greater than 0.")
                 
         st.divider()
         
-        # --- NEW SETTINGS & CURRENCY SELECTOR ---
         st.subheader("⚙️ Preferences")
         currency_map = {
+            "🇺🇸 USD ($)": "$", "🇬🇭 GHS (₵)": "₵", "🇪🇺 EUR (€)": "€",
+            "🇬🇧 GBP (£)": "£", "🇳🇬 NGN (₦)": "₦"
+        }
+        selected_curr_label = st.selectbox("Local Currency", list(currency_map.keys()))
+        st.session_state.currency = currency_map[selected_curr_label]
+        
+        st.divider()
+        if st.button("Log Out"):
+            del st.session_state["username"]
+            st.rerun()
+
+    # --- MAIN DASHBOARD CONTENT ---
+    st.title("💰 Your Secure Budget Vault")
+    
+    # [Keep your onboarding_step code here from the previous version]
+    
+    all_data = conn.read(worksheet="Transaction", ttl=0)
+    df = all_data[all_data['User'] == st.session_state.username]
+    
+    if not df.empty:
+        # Handle older data that might not have a 'Type' yet
+        if 'Type' not in df.columns:
+            df['Type'] = 'Expense'
+        df['Type'] = df['Type'].fillna('Expense')
+
+        tab1, tab2, tab3 = st.tabs(["📊 Overview", "📈 Analytics Charts", "📋 Ledger History"])
+        curr = st.session_state.currency
+        
+        # TAB 1: OVERVIEW METRICS (Updated for True Balance)
+        with tab1:
+            st.subheader("Financial Performance Snapshot")
+            
+            # Calculate Income, Expenses, and True Balance
+            total_income = df[df['Type'] == 'Income']['Amount'].sum()
+            total_expense = df[df['Type'] == 'Expense']['Amount'].sum()
+            current_balance = total_income - total_expense
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric(label="Total Income", value=f"{curr}{total_income:,.2f}")
+            with col2:
+                st.metric(label="Total Expenses", value=f"{curr}{total_expense:,.2f}")
+            with col3:
+                # Color code the balance green if positive, red if negative
+                balance_color = "normal" if current_balance >= 0 else "inverse"
+                st.metric(label="Current Balance", value=f"{curr}{current_balance:,.2f}", delta=f"{curr}{current_balance:,.2f}", delta_color=balance_color)
+        
+        # TAB 2: VISUAL ANALYTICS CHARTS (Updated with Historical Timeline)
+        with tab2:
+            st.subheader("Expense Distribution")
+            expense_df = df[df['Type'] == 'Expense']
+            
+            if not expense_df.empty:
+                col_chart1, col_chart2 = st.columns(2)
+                
+                with col_chart1:
+                    fig_pie = px.pie(expense_df, values='Amount', names='Category', hole=0.4, template="plotly_dark")
+                    fig_pie.update_traces(hovertemplate=f"%{{label}}<br>Amount: {curr}%{{value:,.2f}}<br>Percentage: %{{percent}}")
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                
+                with col_chart2:
+                    # FEATURE 2: Historical Time Series Chart
+                    timeline_df = expense_df.groupby('Date')['Amount'].sum().reset_index()
+                    fig_line = px.line(timeline_df, x='Date', y='Amount', markers=True, template="plotly_dark", title="Spending Timeline")
+                    fig_line.update_traces(line_color="#10B981")
+                    st.plotly_chart(fig_line, use_container_width=True)
+            else:
+                st.info("No expense data available to visualize yet.")
+            
+        # TAB 3: RAW HISTORY & EXPORT (Updated with CSV Download)
+        with tab3:
+            st.subheader("Audited Transaction Records")
+            
+            # FEATURE 3: CSV Export functionality
+            csv_data = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Export Ledger as CSV",
+                data=csv_data,
+                file_name="my_financial_vault.csv",
+                mime="text/csv",
+            )
+            
+            display_df = df.copy()
+            display_df['Amount'] = display_df['Amount'].apply(lambda x: f"{curr}{x:,.2f}")
+            st.dataframe(display_df, use_container_width=True)
+            
+    else:
+        st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
+                
+        st.divider()
+        
+        # --- NEW SETTINGS & CURRENCY SELECTOR ---
+        st.subheader("⚙️ Preferences")
+         currency_map = {
             "🇺🇸 USD ($)": "$",
             "🇬🇭 GHS (₵)": "₵",
             "🇪🇺 EUR (€)": "€",
             "🇬🇧 GBP (£)": "£",
-            "🇳🇬 NGN (₦)": "₦"
+            "🇳🇬 NGN (₦)": "₦",
+            "🇿🇦 ZAR (R)": "R",
+            "🇰🇪 KES (KSh)": "KSh",
+            "🇨🇦 CAD ($)": "$",
+            "🇦🇺 AUD ($)": "$",
+            "🇯🇵 JPY (¥)": "¥",
+            "🇮🇳 INR (₹)": "₹",
+            "🇨🇳 CNY (¥)": "¥",
+            "🇦🇪 AED (د.إ)": "د.إ",
+            "🇨🇭 CHF (CHF)": "CHF"
         }
         selected_curr_label = st.selectbox("Local Currency", list(currency_map.keys()))
         st.session_state.currency = currency_map[selected_curr_label]
