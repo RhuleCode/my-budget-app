@@ -151,7 +151,7 @@ if "username" in st.session_state:
         
         # --- NEW SETTINGS & CURRENCY SELECTOR ---
         st.subheader("⚙️ Preferences")
-         currency_map = {
+        currency_map = {
             "🇺🇸 USD ($)": "$",
             "🇬🇭 GHS (₵)": "₵",
             "🇪🇺 EUR (€)": "€",
