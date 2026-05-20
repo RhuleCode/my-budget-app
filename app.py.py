@@ -105,7 +105,7 @@ if "username" in st.session_state:
                 balance_color = "normal" if current_balance >= 0 else "inverse"
                 st.metric(label="Current Balance", value=f"{curr}{current_balance:,.2f}", delta=f"{curr}{current_balance:,.2f}", delta_color=balance_color)
         
-        # TAB 2: VISUAL ANALYTICS CHARTS (Updated with Historical Timeline)
+       # TAB 2: VISUAL ANALYTICS CHARTS (Updated with Historical Timeline)
         with tab2:
             st.subheader("Expense Distribution")
             expense_df = df[df['Type'] == 'Expense']
@@ -116,17 +116,17 @@ if "username" in st.session_state:
                 with col_chart1:
                     fig_pie = px.pie(expense_df, values='Amount', names='Category', hole=0.4, template="plotly_dark")
                     fig_pie.update_traces(hovertemplate=f"%{{label}}<br>Amount: {curr}%{{value:,.2f}}<br>Percentage: %{{percent}}")
-                    st.plotly_chart(fig_pie, use_container_width=True)
+                    # ✅ FIX: Added key="expense_pie"
+                    st.plotly_chart(fig_pie, use_container_width=True, key="expense_pie")
                 
                 with col_chart2:
-                    # FEATURE 2: Historical Time Series Chart
                     timeline_df = expense_df.groupby('Date')['Amount'].sum().reset_index()
                     fig_line = px.line(timeline_df, x='Date', y='Amount', markers=True, template="plotly_dark", title="Spending Timeline")
                     fig_line.update_traces(line_color="#10B981")
-                    st.plotly_chart(fig_line, use_container_width=True)
+                    # ✅ FIX: Added key="expense_timeline"
+                    st.plotly_chart(fig_line, use_container_width=True, key="expense_timeline")
             else:
                 st.info("No expense data available to visualize yet.")
-            
         # TAB 3: RAW HISTORY & EXPORT (Updated with CSV Download)
         with tab3:
             st.subheader("Audited Transaction Records")
