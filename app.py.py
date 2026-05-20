@@ -29,12 +29,35 @@ if "username" in st.session_state:
         
         st.subheader("📝 Add Transaction")
         
-        # FEATURE 1: Transaction Type Toggle
-        tx_type = st.radio("Transaction Type", ["Expense", "Income"], horizontal=True)
-        new_date = st.date_input("Date")
-        new_desc = st.text_input("Description")
-        new_cat = st.text_input("Category Name")
-        new_amt = st.number_input("Amount", value=0.0, step=1.0)
+        # Added a 'help' tooltip to explain the toggle
+        tx_type = st.radio(
+            "Transaction Type", 
+            ["Expense", "Income"], 
+            horizontal=True,
+            help="Does this money go out (Expense) or come in (Income)?"
+        )
+        
+        new_date = st.date_input("Date", help="When did this transaction happen?")
+        
+        # Added 'placeholder' for floating examples inside the text boxes
+        new_desc = st.text_input(
+            "Description", 
+            placeholder="e.g., Uber to campus, Monthly Salary..."
+        )
+        
+        new_cat = st.text_input(
+            "Category Name", 
+            placeholder="e.g., Transport, Food, Freelance..."
+        )
+        
+        # Kept value=0.0 to prevent math errors, added 'help' for guidance
+        new_amt = st.number_input(
+            "Amount", 
+            value=0.0, 
+            step=1.0,
+            help="Enter the exact amount spent or earned."
+        )
+       
         
         if st.button("Save to Vault"):
             if new_cat and new_amt > 0:
