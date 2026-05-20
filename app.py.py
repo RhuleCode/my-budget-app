@@ -374,19 +374,16 @@ st.sidebar.markdown(
             👨‍💻 Developed By
         </p>
         <h4 style="color: #F8FAFC; margin: 0 0 5px 0; font-size: 16px; font-weight: 700;">
-            Your Name
+            Nana Kwaku Bentum Rhule
         </h4>
         <p style="color: #10B981; font-size: 13px; margin-bottom: 12px; font-weight: 500;">
-            Cybersecurity & Software Engineer
+            Cybersecurity & IT Developer
         </p>
         <div style="display: flex; justify-content: center; gap: 10px;">
-            <a href="https://github.com/yourusername" target="_blank" style="text-decoration: none; background-color: #0F172A; color: #F8FAFC; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid #475569;">
+            <a href="https://github.com/Rhulecode" target="_blank" style="text-decoration: none; background-color: #0F172A; color: #F8FAFC; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid #475569;">
                 🐙 GitHub
             </a>
-            <a href="https://linkedin.com/in/yourusername" target="_blank" style="text-decoration: none; background-color: #0077B5; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;">
-                🔗 LinkedIn
-            </a>
-        </div>
+           
     </div>
     """,
     unsafe_allow_html=True
