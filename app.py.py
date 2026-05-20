@@ -66,12 +66,19 @@ if "username" in st.session_state:
         df['Date'] = pd.to_datetime(df['Date']).dt.date
         df['Type'] = df['Type'].fillna('Expense')
         
-        st.markdown("### 📅 Adjust Your Budget Cycle")
-        selected_dates = st.date_input("Select your cycle:", value=(datetime.date.today().replace(day=1), datetime.date.today()))
-        
-        if len(selected_dates) == 2:
-            start, end = selected_dates
-            cycle_df = df[(df['Date'] >= start) & (df['Date'] <= end)]
+    # --- NEW FEATURE: VIEW MODE TOGGLE ---
+        st.markdown("### 📊 Dashboard View Mode")
+        view_mode = st.radio("How would you like to view your data?", ["Custom Cycle", "Daily View"], horizontal=True)
+
+        if view_mode == "Custom Cycle":
+            selected_dates = st.date_input("Select your cycle:", value=(datetime.date.today().replace(day=1), datetime.date.today()))
+            if len(selected_dates) == 2:
+                start, end = selected_dates
+                cycle_df = df[(df['Date'] >= start) & (df['Date'] <= end)]
+            else: cycle_df = pd.DataFrame()
+        else: # "Daily View"
+            selected_day = st.date_input("Select a specific day:", value=datetime.date.today())
+            cycle_df = df[df['Date'] == selected_day]    
             
             if not cycle_df.empty:
                 tab1, tab2, tab3 = st.tabs(["📊 Overview", "📈 Analytics Charts", "📋 Ledger History"])
