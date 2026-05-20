@@ -58,8 +58,20 @@ if "username" in st.session_state:
         
         st.subheader("⚙️ Preferences")
         currency_map = {
-            "🇺🇸 USD ($)": "$", "🇬🇭 GHS (₵)": "₵", "🇪🇺 EUR (€)": "€",
-            "🇬🇧 GBP (£)": "£", "🇳🇬 NGN (₦)": "₦"
+            "🇺🇸 USD ($)": "$",
+            "🇬🇭 GHS (₵)": "₵",
+            "🇪🇺 EUR (€)": "€",
+            "🇬🇧 GBP (£)": "£",
+            "🇳🇬 NGN (₦)": "₦",
+            "🇿🇦 ZAR (R)": "R",
+            "🇰🇪 KES (KSh)": "KSh",
+            "🇨🇦 CAD ($)": "$",
+            "🇦🇺 AUD ($)": "$",
+            "🇯🇵 JPY (¥)": "¥",
+            "🇮🇳 INR (₹)": "₹",
+            "🇨🇳 CNY (¥)": "¥",
+            "🇦🇪 AED (د.إ)": "د.إ",
+            "🇨🇭 CHF (CHF)": "CHF"
         }
         selected_curr_label = st.selectbox("Local Currency", list(currency_map.keys()))
         st.session_state.currency = currency_map[selected_curr_label]
