@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import hashlib
+import datetime
 from streamlit_gsheets import GSheetsConnection
 
 # --- 1. INITIAL SETUP & CONNECTION ---
@@ -104,8 +105,105 @@ if "username" in st.session_state:
             del st.session_state["username"]
             st.rerun()
 
+    
     # --- MAIN DASHBOARD CONTENT ---
     st.title("💰 Your Secure Budget Vault")
+    
+    all_data = conn.read(worksheet="Transaction", ttl=0)
+    df = all_data[all_data['User'] == st.session_state.username]
+    
+    if not df.empty:
+        # Handle older data that might not have a 'Type' yet
+        if 'Type' not in df.columns:
+            df['Type'] = 'Expense'
+        df['Type'] = df['Type'].fillna('Expense')
+
+        # --- NEW FEATURE: CUSTOM PAY CYCLE FILTER ---
+        st.markdown("### 📅 Adjust Your Budget Cycle")
+        
+        # Convert your text dates into actual Python date objects for math
+        df['Date'] = pd.to_datetime(df['Date']).dt.date
+        
+        today = datetime.date.today()
+        first_day_of_month = today.replace(day=1)
+        
+        # Create a date range picker in the UI
+        selected_dates = st.date_input(
+            "Select your specific pay cycle:",
+            value=(first_day_of_month, today),
+            help="Don't get paid on the 1st? Adjust these dates to match your reality."
+        )
+        
+        # Streamlit returns a tuple. We only proceed if both a start and end date are clicked.
+        if len(selected_dates) == 2:
+            start_date, end_date = selected_dates
+            
+            # Filter the database to ONLY include rows between the selected dates
+            mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+            cycle_df = df.loc[mask]
+            
+            if not cycle_df.empty:
+                tab1, tab2, tab3 = st.tabs(["📊 Overview", "📈 Analytics Charts", "📋 Ledger History"])
+                curr = st.session_state.currency
+                
+                # TAB 1: OVERVIEW METRICS (Now using cycle_df!)
+                with tab1:
+                    st.subheader(f"Performance: {start_date.strftime('%b %d')} to {end_date.strftime('%b %d')}")
+                    
+                    total_income = cycle_df[cycle_df['Type'] == 'Income']['Amount'].sum()
+                    total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
+                    current_balance = total_income - total_expense
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric(label="Cycle Income", value=f"{curr}{total_income:,.2f}")
+                    with col2:
+                        st.metric(label="Cycle Expenses", value=f"{curr}{total_expense:,.2f}")
+                    with col3:
+                        balance_color = "normal" if current_balance >= 0 else "inverse"
+                        st.metric(label="Cycle Balance", value=f"{curr}{current_balance:,.2f}", delta=f"{curr}{current_balance:,.2f}", delta_color=balance_color)
+                
+                # TAB 2: VISUAL ANALYTICS CHARTS (Now using cycle_df!)
+                with tab2:
+                    st.subheader("Expense Distribution")
+                    expense_df = cycle_df[cycle_df['Type'] == 'Expense']
+                    
+                    if not expense_df.empty:
+                        col_chart1, col_chart2 = st.columns(2)
+                        with col_chart1:
+                            fig_pie = px.pie(expense_df, values='Amount', names='Category', hole=0.4, template="plotly_dark")
+                            fig_pie.update_traces(hovertemplate=f"%{{label}}<br>Amount: {curr}%{{value:,.2f}}<br>Percentage: %{{percent}}")
+                            st.plotly_chart(fig_pie, use_container_width=True, key="expense_pie")
+                        
+                        with col_chart2:
+                            timeline_df = expense_df.groupby('Date')['Amount'].sum().reset_index()
+                            fig_line = px.line(timeline_df, x='Date', y='Amount', markers=True, template="plotly_dark", title="Spending Timeline")
+                            fig_line.update_traces(line_color="#10B981")
+                            st.plotly_chart(fig_line, use_container_width=True, key="expense_timeline")
+                    else:
+                        st.info("No expense data available in this date range.")
+                    
+                # TAB 3: RAW HISTORY & EXPORT (Now using cycle_df!)
+                with tab3:
+                    st.subheader("Audited Transaction Records")
+                    csv_data = cycle_df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Export Cycle Ledger as CSV",
+                        data=csv_data,
+                        file_name="my_financial_vault_cycle.csv",
+                        mime="text/csv",
+                    )
+                    
+                    display_df = cycle_df.copy()
+                    display_df['Amount'] = display_df['Amount'].apply(lambda x: f"{curr}{x:,.2f}")
+                    st.dataframe(display_df, use_container_width=True)
+            else:
+                st.info("You have no transactions recorded during this specific pay cycle.")
+        else:
+            st.warning("Please select an end date to view your dashboard.")
+            
+    else:
+        st.info("Your vault is currently empty. Add your first transaction in the sidebar!")
     
     # [Keep your onboarding_step code here from the previous version]
     
