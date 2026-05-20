@@ -39,21 +39,21 @@ total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
         # Added a 'help' tooltip to explain the toggle
        
         
-        if st.button("Save to Vault"):
-            if new_cat and new_amt > 0:
-                new_entry = pd.DataFrame([{
-                    "Date": str(new_date),
-                    "Type": tx_type,  # Saves the new type to your sheet
-                    "Description": new_desc,
-                    "Category": new_cat,
-                    "Amount": new_amt,
-                    "User": st.session_state.username
-                }])
-                all_data = conn.read(worksheet="Transaction", ttl=0)
-                updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
-                conn.update(worksheet="Transaction", data=updated_vault)
-                st.success(f"✅ Saved {new_cat} {tx_type.lower()}!")
-                st.rerun()
+    if st.button("Save to Vault"):
+        if new_cat and new_amt > 0:
+            new_entry = pd.DataFrame([{
+                "Date": str(new_date),
+                "Type": tx_type,  # Saves the new type to your sheet
+                "Description": new_desc,
+                "Category": new_cat,
+                "Amount": new_amt,
+                "User": st.session_state.username
+            }])
+            all_data = conn.read(worksheet="Transaction", ttl=0)
+            updated_vault = pd.concat([all_data, new_entry], ignore_index=True)
+            conn.update(worksheet="Transaction", data=updated_vault)
+            st.success(f"✅ Saved {new_cat} {tx_type.lower()}!")
+            st.rerun()
             else:
                 st.warning("Please enter a valid category name and an amount greater than 0.")
                 
