@@ -9,8 +9,6 @@ st.set_page_config(page_title="Secure Budget Vault", layout="wide")
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- 2. AUTHENTICATION GATING ---
-if "username" in st.session_state:
     # --- 2. AUTHENTICATION GATING ---
 if "username" in st.session_state:
     
