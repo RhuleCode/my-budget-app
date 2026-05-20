@@ -29,35 +29,14 @@ if "username" in st.session_state:
         )
         
         st.subheader("📝 Add Transaction")
-        
+        # Update your radio button to include 'Transfer'
+tx_type = st.radio("Transaction Type", ["Expense", "Income", "Transfer"], horizontal=True)
+
+# When calculating your totals in the Dashboard, modify the logic:
+total_income = cycle_df[cycle_df['Type'] == 'Income']['Amount'].sum()
+total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
+# Transfers are excluded from these totals!
         # Added a 'help' tooltip to explain the toggle
-        tx_type = st.radio(
-            "Transaction Type", 
-            ["Expense", "Income"], 
-            horizontal=True,
-            help="Does this money go out (Expense) or come in (Income)?"
-        )
-        
-        new_date = st.date_input("Date", help="When did this transaction happen?")
-        
-        # Added 'placeholder' for floating examples inside the text boxes
-        new_desc = st.text_input(
-            "Description", 
-            placeholder="e.g., Uber to campus, Monthly Salary..."
-        )
-        
-        new_cat = st.text_input(
-            "Category Name", 
-            placeholder="e.g., Transport, Food, Freelance..."
-        )
-        
-        # Kept value=0.0 to prevent math errors, added 'help' for guidance
-        new_amt = st.number_input(
-            "Amount", 
-            value=0.0, 
-            step=1.0,
-            help="Enter the exact amount spent or earned."
-        )
        
         
         if st.button("Save to Vault"):
@@ -303,10 +282,28 @@ if "username" in st.session_state:
         selected_curr_label = st.selectbox("Local Currency", list(currency_map.keys()))
         st.session_state.currency = currency_map[selected_curr_label]
         
-        st.divider()
-        if st.button("Log Out"):
-            del st.session_state["username"]
-            st.rerun()
+        # ... (existing sidebar code) ...
+    
+    st.divider()
+    
+    # 1. Existing Log Out Button
+    if st.button("Log Out"):
+        del st.session_state["username"]
+        st.rerun()
+
+    # 2. INSERT THE DELETE FUNCTION HERE:
+    if st.button("Delete My Account"):
+        # Logic to remove the user from your 'Users' worksheet
+        users_df = conn.read(worksheet="Users", ttl=0)
+        updated_users = users_df[users_df['Username'] != st.session_state.username]
+        conn.update(worksheet="Users", data=updated_users)
+        
+        # Aggressive session clear
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+            
+        st.warning("Account deleted. Redirecting to login...")
+        st.rerun()
 
     # --- MAIN DASHBOARD CONTENT ---
     st.title("💰 Your Secure Budget Vault")
