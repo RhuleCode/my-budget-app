@@ -54,9 +54,9 @@ total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
             conn.update(worksheet="Transaction", data=updated_vault)
             st.success(f"✅ Saved {new_cat} {tx_type.lower()}!")
             st.rerun()
-            else:
-                st.warning("Please enter a valid category name and an amount greater than 0.")
-                
+        else:
+            st.warning("Please enter a valid category name and an amount greater than 0.")
+            
         st.divider()
         
         st.subheader("⚙️ Preferences")
