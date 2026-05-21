@@ -199,24 +199,27 @@ else:
     
     with tab1:
         st.subheader("Category Expenditure Allocation Splits")
-        expense_df = cycle_df[
-            (cycle_df['Type'] == 'Expense') | 
-            (cycle_df['Category'] == 'Purchase')
-        ].copy()
+        
+        # SELF-HEALING LOGIC:
+        # If 'Type' is blank or anything other than Income/Transfer, treat as Expense
+        df_chart = cycle_df.copy()
+        df_chart['Type'] = df_chart['Type'].apply(
+            lambda x: 'Expense' if x not in ['Income', 'Transfer'] else x
+        )
+        
+        expense_df = df_chart[df_chart['Type'] == 'Expense']
         
         if not expense_df.empty:
-            # Create the chart
             fig = px.pie(expense_df, values='Amount', names='Category', hole=0.3)
             
-            # This adds the 3D-like depth/beveled effect
+            # 3D-style pop effect
             fig.update_traces(
                 textposition='inside', 
                 textinfo='percent+label',
-                pull=[0.05] * len(expense_df), # Slightly separates the slices for a "popped out" 3D feel
-                marker=dict(line=dict(color='#000000', width=2)) # Adds a defined border to each slice
+                pull=[0.05] * len(expense_df),
+                marker=dict(line=dict(color='#000000', width=2))
             )
             
-            # Dark mode styling to match your theme
             fig.update_layout(
                 template="plotly_dark", 
                 paper_bgcolor='rgba(0,0,0,0)', 
