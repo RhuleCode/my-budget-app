@@ -217,3 +217,32 @@ else:
                 "Amount": st.column_config.NumberColumn("Amount", format=f"{c}%.2f")
             }
         )
+
+    # --- PLACED EXACTLY HERE BELOW THE LEDGER HISTORY DATA TABLE ---
+        st.write("")
+        st.divider()
+        st.markdown("### 🚨 Master Reset Vault System")
+        st.caption("Need a completely blank slate? Wiping the system logs clears transaction data entries permanently.")
+        
+        # Two-Step Security Verification Elements
+        confirm_wipe = st.checkbox(
+            "I explicitly confirm that I want to completely delete my ledger history data records.", 
+            value=False,
+            key="main_screen_wipe_checkbox",
+            help="Check this authorization confirmation toggle to initialize and show the master destruction trigger button tool."
+        )
+        
+        if confirm_wipe:
+            if st.button("🔥 Confirm Clear & Start Over", help="🚨 ACTION REQUIRED: Click here to instantly scrub data rows clean. This cannot be reversed."):
+                try:
+                    # Construct clean empty dataset mapping exactly to your active layout schema structure
+                    blank_slate_df = pd.DataFrame(columns=["Date", "Description", "Category", "Amount", "User", "Type"])
+                    
+                    # Overwrite and flush to Google Sheets worksheet
+                    conn.update(worksheet="Transaction", data=blank_slate_df)
+                    
+                    st.toast("Vault data ledger successfully wiped clean!", icon="💥")
+                    st.success("System reset active! Refreshing cloud cache records...")
+                    st.rerun()
+                except Exception as wipe_error:
+                    st.error(f"Security override f
