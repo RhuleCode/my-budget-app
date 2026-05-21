@@ -96,7 +96,7 @@ with st.sidebar:
         # Link button directly pointing to your main GitHub account page
         st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
     st.divider()
-    with st.sidebar:
+    
     # 1. Log Out Logic
     if st.button("Log Out"):
         # Clear all session state variables
