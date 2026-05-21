@@ -272,23 +272,23 @@ else:
     previous_month_expense = 100.0 
     delta_value = total_expense - previous_month_expense
     
+    # ... previous code ...
     st.metric(
         label="Expense Trend vs Last Period", 
         value=f"{c_display} {total_expense:,.2f}", 
         delta=f"{delta_value:,.2f}",
         delta_color="inverse"
     )
-    # --- END OF DELTA TRACKING BLOCK ---
-
-    st.divider() # Your existing divider for insights
-        
-        # Smart Insight
-        if net_savings > 0:
-            st.success(f"✅ Your {scope} budget is positive. Keep it up!")
-        elif net_savings < 0:
-            st.warning(f"⚠️ Your {scope} expenses are exceeding your income.")
-        else:
-            st.info(f"Your {scope} budget is currently balanced.")
+    
+    st.divider() # Line 282
+    
+    # Ensure this 'if' starts at the same level as 'st.divider()'
+    if net_savings > 0:
+        st.success(f"✅ Your {scope} budget is positive. Keep it up!")
+    elif net_savings < 0:
+        st.warning(f"⚠️ Your {scope} expenses are exceeding your income.")
+    else:
+        st.info(f"Your {scope} budget is currently balanced.")
     # --- PLACED EXACTLY HERE BELOW THE LEDGER HISTORY DATA TABLE ---
         st.write("")
         st.divider()
