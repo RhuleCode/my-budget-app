@@ -245,4 +245,6 @@ else:
                     st.success("System reset active! Refreshing cloud cache records...")
                     st.rerun()
                 except Exception as wipe_error:
-                    st.error(f"Security override f
+                    st.error(f"Security override failed to clear spreadsheet log rows: {wipe_error}")
+
+    rride f
