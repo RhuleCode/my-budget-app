@@ -48,19 +48,8 @@ with st.sidebar:
     
     st.divider()
 
-    # --- NEW: DEVELOPER PROFILE FIELD ---
-    with st.expander("👨‍💻 About the Developer", expanded=False):
-        st.markdown("""
-        **Developer:** `Nana Kwaku Bentum Rhule`  
-        **Specialization:** Cybersecurity & Secure Application Development  
-        **Environment:** Environment built and tested on Ubuntu Linux  
-        
-        *Building secure tools for modern financial tracking.*
-        """)
-        # Link button directly pointing to your main GitHub account page
-        st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
     
-    st.divider()
+    
     
     st.header("📝 New Transaction")
     # Form keeps inputs grouped and prevents spacing crashes
@@ -108,6 +97,18 @@ with st.sidebar:
             updated_df = pd.concat([existing_data, new_row], ignore_index=True)
             conn.update(worksheet="Transaction", data=updated_df)
             st.success(f"✅ Saved: {cat_val} ({type_val})")
+    st.divider()
+        # --- NEW: DEVELOPER PROFILE FIELD ---
+    with st.expander("👨‍💻 About the Developer", expanded=False):
+        st.markdown("""
+        **Developer:** `Nana Kwaku Bentum Rhule`  
+        **Specialization:** Cybersecurity & Secure Application Development  
+        **Environment:** Environment built and tested on Ubuntu Linux  
+        
+        *Building secure tools for modern financial tracking.*
+        """)
+        # Link button directly pointing to your main GitHub account page
+        st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
 
 # --- 5. MAIN DASHBOARD ---
 st.title("💰 Your Secure Budget Vault")
