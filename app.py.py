@@ -96,7 +96,7 @@ with st.sidebar:
         # Link button directly pointing to your main GitHub account page
         st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
         
-    st.container(height=350, border=False)
+    st.container(height=100, border=False)
     
     st.divider()
     
