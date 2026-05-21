@@ -7,28 +7,27 @@ from datetime import date, timedelta
 
 # --- 1. PAGE SETUP ---
 # 1. SETUP & CONFIG (Always first)
-st.set_page_config(page_title="Secure Budget Vault", layout="wide")
+st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
 
-# 2. INITIALIZE SESSION
+# 2. AUTHENTICATION GATE (The Login logic MUST be first)
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# 3. AUTHENTICATION GATE (The Login Page)
 if not st.session_state.logged_in:
     st.title("💰 Secure Budget Vault")
     st.subheader("Authentication Required")
     
-    with st.form("login"):
-        user = st.text_input("Username")
+    with st.form("login_form"):
+        username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         if st.form_submit_button("Access Vault"):
-            if user == "nkb" and password == "1234":
+            # Put your credential check here
+            if username == "nkb" and password == "1234":
                 st.session_state.logged_in = True
-                st.session_state.username = user
-                st.rerun() # Forces hard refresh to dashboard
+                st.session_state.username = username
+                st.rerun() # Refresh to dashboard
             else:
-                st.error("Invalid login.")
-    st.stop() # CRITICAL: Stop here so dashboard code never runs
+                st.error("Invalid credentials.")
 
 
 # --- 3. DATABASE CONNECTION ---
@@ -122,10 +121,7 @@ with st.sidebar:
     
     # 1. Log Out Logic
     if st.button("Log Out"):
-        # Clear all session state variables
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        # Force a refresh to the login state
+        st.session_state.clear() # Wipes all memory
         st.rerun()
         
     st.divider() # Keep the logout button separated from other controls
