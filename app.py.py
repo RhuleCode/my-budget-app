@@ -59,6 +59,24 @@ if "username" in st.session_state:
 
     # --- MAIN DASHBOARD CONTENT ---
     st.title("💰 Your Secure Budget Vault")
+    # --- NEW: IN-APP USER GUIDE ---
+    with st.expander("📖 User Guide: How to use this app"):
+        st.markdown("""
+        ### 📝 Adding Transactions (Sidebar)
+        * **Transaction Type:** * **Income:** Money earned (increases balance).
+          * **Expense:** Money spent (decreases balance).
+          * **Transfer:** Moving money between accounts (ignored in profit/loss).
+        * **Date & Description:** Log *when* and *what* occurred (e.g., "Uber to campus").
+        * **Category:** Groups your spending (e.g., "Transport", "Food") to generate your pie charts.
+        
+        ### 📊 Dashboard View Modes
+        * **Custom Cycle:** View your data across a specific date range (like your personal pay cycle). Generates an interactive timeline chart.
+        * **Daily View:** Zoom in on a single specific day to check your daily limits. Generates a daily breakdown bar chart.
+        
+        ### ⚙️ Account & Exports
+        * **Local Currency:** Change your display symbol in the sidebar Preferences.
+        * **Export to CSV:** Go to the **Ledger History** tab to securely download your currently filtered data as a spreadsheet file.
+        """)
     all_data = conn.read(worksheet="Transaction", ttl=0)
     df = all_data[all_data['User'] == st.session_state.username]
     
