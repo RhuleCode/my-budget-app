@@ -266,6 +266,21 @@ else:
         col3.metric("Net Flow", f"{c_display} {net_savings:,.2f}")
         
         st.divider()
+        st.subheader("📈 Performance Trend")
+    
+    # Example logic: you can refine the 'previous_month_expense' calculation later
+    previous_month_expense = 100.0 
+    delta_value = total_expense - previous_month_expense
+    
+    st.metric(
+        label="Expense Trend vs Last Period", 
+        value=f"{c_display} {total_expense:,.2f}", 
+        delta=f"{delta_value:,.2f}",
+        delta_color="inverse"
+    )
+    # --- END OF DELTA TRACKING BLOCK ---
+
+    st.divider() # Your existing divider for insights
         
         # Smart Insight
         if net_savings > 0:
