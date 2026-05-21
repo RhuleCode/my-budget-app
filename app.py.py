@@ -195,7 +195,7 @@ else:
     
     # --- TABS FOR CHARTS AND DATA ---
     st.write("") # Spacing
-    tab1, tab2 = st.tabs(["📊 Analytics Charts", "📋 Ledger History"])
+    tab1, tab2, tab3 = st.tabs(["📊 Analytics Charts", "📋 Ledger History", "📄 Monthly Summary"])
     
     with tab1:
         st.subheader("Category Expenditure Allocation Splits")
