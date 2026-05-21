@@ -24,30 +24,7 @@ with st.sidebar:
    
     st.divider()
     # About Section
-    with st.expander("👨‍💻 About the Developer"):
-        st.markdown("...") # (Your developer text)
-        st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
-
-    # Spacer to push buttons to the bottom
-    st.container(height=250, border=False)
-    
-    st.divider()
-    
-    # Account Settings
-    with st.expander("⚙️ Account Settings"):
-        st.warning("⚠️ This action is permanent.")
-        confirm_delete = st.checkbox("I understand.")
-        if st.button("Delete My Account"):
-            if confirm_delete:
-                # Deletion logic...
-                st.rerun()
-    
-    # Log Out (Independent, simple button)
-    if st.button("Log Out"):
-        for key in list(st.session_state.keys()): del st.session_state[key]
-        st.rerun()
-
-    
+   
     
     
     st.header("📝 New Transaction")
