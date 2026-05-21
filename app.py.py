@@ -111,6 +111,25 @@ with st.sidebar:
         """)
         # Link button directly pointing to your main GitHub account page
         st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
+    st.divider()
+    if st.button("Log Out"):
+        for key in list(st.session_state.keys()): del st.session_state[key]
+        st.rerun()
+    st.divider()
+
+    # 2. PASTE ACCOUNT SETTINGS HERE
+    with st.expander("⚙️ Account Settings"):
+        st.warning("⚠️ This action is permanent and will remove all your data.")
+        # Confirmation checkbox makes it safer!
+        confirm_delete = st.checkbox("I understand this will delete all my data.")
+        
+        if st.button("Delete My Account & Data"):
+            if confirm_delete:
+                # [Insert your Deletion Logic here]
+                st.success("Account deleted.")
+            else:
+                st.error("Please check the box to confirm deletion.")
+    
 
 # --- 5. MAIN DASHBOARD ---
 st.title("💰 Your Secure Budget Vault")
