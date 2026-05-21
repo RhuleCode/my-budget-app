@@ -231,10 +231,9 @@ else:
             st.write("No expenses logged in this timeframe to chart.")
             
     with tab2:
-        st.subheader("Secure Ledger")
-        # Format the dataframe to look nice
-        st.dataframe(
-            # This makes the table editable!
+        st.subheader("Secure Core Transaction Ledger Logs")
+        
+        # This makes the table editable!
         edited_df = st.data_editor(
             cycle_df, 
             use_container_width=True, 
@@ -251,7 +250,6 @@ else:
             conn.update(worksheet="Transaction", data=edited_df)
             st.success("Ledger updated successfully!")
             st.rerun()
-
     # --- PLACED EXACTLY HERE BELOW THE LEDGER HISTORY DATA TABLE ---
         st.write("")
         st.divider()
