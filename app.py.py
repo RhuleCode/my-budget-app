@@ -116,7 +116,7 @@ with st.sidebar:
 st.title("💰 Your Secure Budget Vault")
 
 # User Guide Expander
-with st.expander("📖 User Guide: How to use this app"):
+with st.expander("📖 Updated User Guide: How to use this app"):
     st.markdown("""
     ### 📝 Adding Transactions (Sidebar)
     * **Transaction Type:** Income (adds money), Expense (subtracts money), Transfer (moves money).
@@ -125,8 +125,12 @@ with st.expander("📖 User Guide: How to use this app"):
     ### 📊 Dashboard View Modes
     * **Custom Cycle:** View your data across a specific date range (like your personal pay cycle).
     * **Daily View:** Zoom in on a single specific day to check daily limits.
-    """)
 
+    ### 📄 Financial Insights
+    * **Analytics Charts:** View your expenditure splits as a dynamic pie chart.
+    * **Ledger History:** View and edit your past transaction logs in real-time.
+    * **Monthly Summary:** Review your Net Flow (Income vs. Expense) and track your **Performance Trend** to see if your spending is rising or falling compared to the last period.
+    """)
 # Fetch and Filter Data securely
 try:
     all_data = conn.read(worksheet="Transaction", usecols=list(range(6)), ttl=0)
