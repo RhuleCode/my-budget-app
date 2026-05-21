@@ -246,13 +246,34 @@ else:
                 "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD")
             }
         )
-
-        # Save button for edits
-        if st.button("💾 Save Ledger Edits"):
-            # Logic: We overwrite the sheet with the new edited dataframe
-            conn.update(worksheet="Transaction", data=edited_df)
-            st.success("Ledger updated successfully!")
-            st.rerun()
+    with tab3:
+        st.subheader("📄 Financial Summary Report")
+        
+        # Determine the scope label based on the active view mode
+        scope = "Daily" if view_mode == "Daily View" else "Cycle"
+        st.caption(f"Generating summary for the selected: **{scope}**")
+        
+        # Calculate metrics using the pre-filtered cycle_df
+        total_income = cycle_df[cycle_df['Type'] == 'Income']['Amount'].sum()
+        total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
+        net_savings = total_income - total_expense
+        
+        # Metric display
+        c_display = st.session_state.currency
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Income", f"{c_display} {total_income:,.2f}")
+        col2.metric("Expenses", f"{c_display} {total_expense:,.2f}")
+        col3.metric("Net Flow", f"{c_display} {net_savings:,.2f}")
+        
+        st.divider()
+        
+        # Smart Insight
+        if net_savings > 0:
+            st.success(f"✅ Your {scope} budget is positive. Keep it up!")
+        elif net_savings < 0:
+            st.warning(f"⚠️ Your {scope} expenses are exceeding your income.")
+        else:
+            st.info(f"Your {scope} budget is currently balanced.")
     # --- PLACED EXACTLY HERE BELOW THE LEDGER HISTORY DATA TABLE ---
         st.write("")
         st.divider()
