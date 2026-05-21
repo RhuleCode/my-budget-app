@@ -53,21 +53,11 @@ with st.sidebar:
             format="%.2f", 
             help="Enter the exact monetary amount."
         )
-        curr_options = st.selectbox(
-            "Currency",
-            ["GH₵ (GHS)", 
-            "₦ (NGN)", 
-            "$ (USD)", 
-            "€ (EUR)", 
-            "£ (GBP)", 
-            "KSh (KES)", 
-            "R (ZAR)", 
-            "¥ (JPY)"]
-        st.session_state.currency = st.selectbox(
-            "Currency", 
-            options=curr_options, 
-            help="Choose the currency symbol to display on your dashboard."
-        )
+        # 1. Currency Selector inside the form
+    currency = st.selectbox(
+        "Currency", 
+        ["GH₵ (GHS)", "₦ (NGN)", "$ (USD)", "€ (EUR)", "£ (GBP)", "KSh (KES)", "R (ZAR)", "¥ (JPY)"]
+    )
         
         submitted = st.form_submit_button("Save to Vault")
         
