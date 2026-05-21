@@ -5,39 +5,14 @@ from streamlit_gsheets import GSheetsConnection
 from datetime import date, timedelta
 
 
-# --- 1. PAGE SETUP ---
-# 1. PAGE SETUP
-st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
 
-# 2. INITIALIZE SESSION STATE
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "username" not in st.session_state:
-    st.session_state.username = None # Initialize as None
+#INITIAL SETUP & CONNECTION ---
+st.set_page_config(page_title="Secure Budget Vault", layout="wide")
 
-# 3. LOGIN GATE
-if not st.session_state.logged_in:
-    st.title("💰 Secure Budget Vault")
-    st.subheader("Authentication Required")
-    
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        if st.form_submit_button("Access Vault"):
-            if username == "nkb" and password == "1234":
-                st.session_state.logged_in = True
-                st.session_state.username = username # Set the username ONLY on login
-                st.rerun()
-            else:
-                st.error("Invalid credentials.")
-    st.stop() # CRITICAL: This stops the app from loading the dashboard if not logged in.
-
-# 4. DASHBOARD STARTS HERE (Only runs if logged_in is True)
 conn = st.connection("gsheets", type=GSheetsConnection)
-# --- 4. SIDEBAR: CONTROLS & INPUTS ---
-with st.sidebar:
-    st.header(f"👋 Welcome, {st.session_state.username}!")
-    
+
+# --- 2. AUTHENTICATION GATING ---
+if "username" in st.session_state:
     
    
     st.divider()
