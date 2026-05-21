@@ -2,116 +2,194 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
+from datetime import date, timedelta
 
-# --- PAGE SETUP ---
+# --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
 
-# --- SESSION STATE (LOGIN) ---
+# --- 2. SESSION STATE (MEMORY) ---
 if "username" not in st.session_state:
-    st.session_state.username = "nkb" # Sets your default username
+    st.session_state.username = "nkb" # Default user
+if "currency" not in st.session_state:
+    st.session_state.currency = "$"
 
-# --- DATABASE CONNECTION ---
+# --- 3. DATABASE CONNECTION ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- SIDEBAR: CONTROLS & INPUTS ---
+# --- 4. SIDEBAR: CONTROLS & INPUTS ---
 with st.sidebar:
-    st.header("🔐 Vault Access")
-    # This automatically updates the session state when you type a new name
-    st.session_state.username = st.text_input("Username", value=st.session_state.username)
+    st.header(f"👋 Welcome, {st.session_state.username}!")
+    
+    # Account & Settings Row
+    col1, col2 = st.columns(2)
+    with col1:
+        # Currency Selector
+        curr_options = ["$", "€", "£", "GH₵"]
+        st.session_state.currency = st.selectbox(
+            "Currency", 
+            options=curr_options, 
+            help="Choose the currency symbol to display on your dashboard."
+        )
+    with col2:
+        # Log Out Button
+        st.write("") # Spacing alignment
+        st.write("")
+        if st.button("Log Out", help="Click to securely clear your session and lock the vault."):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
     
     st.divider()
     
     st.header("📝 New Transaction")
-    # Using a form prevents the indentation crash you experienced!
+    # Form keeps inputs grouped and prevents spacing crashes
     with st.form("transaction_form", clear_on_submit=True):
-        date_val = st.date_input("Date")
-        type_val = st.selectbox("Type", ["Income", "Expense", "Transfer"])
-        desc_val = st.text_input("Description")
-        cat_val = st.selectbox("Category", ["Food", "Rent", "Salary", "Transport", "Utilities", "Other"])
-        amount_val = st.number_input("Amount", min_value=0.0, format="%.2f")
+        date_val = st.date_input(
+            "Date", 
+            help="When did this transaction occur?"
+        )
+        type_val = st.selectbox(
+            "Transaction Type", 
+            ["Income", "Expense", "Transfer"], 
+            help="Income adds to your balance. Expense subtracts. Transfer is ignored in totals."
+        )
+        desc_val = st.text_input(
+            "Description", 
+            help="A quick note to remember this by (e.g., 'Uber to campus' or 'Groceries')."
+        )
+        cat_val = st.selectbox(
+            "Category", 
+            ["Food", "Rent", "Salary", "Transport", "Utilities", "Purchase", "Other"], 
+            help="Grouping similar expenses helps generate accurate pie charts."
+        )
+        amount_val = st.number_input(
+            "Amount", 
+            min_value=0.0, 
+            format="%.2f", 
+            help="Enter the exact monetary amount."
+        )
         
-        # The form submit button
         submitted = st.form_submit_button("Save to Vault")
         
         if submitted:
-            # 1. Pull current data
             existing_data = conn.read(worksheet="Transaction", usecols=list(range(6)), ttl=0)
-            existing_data = existing_data.dropna(how="all") # Clean up empty rows
+            existing_data = existing_data.dropna(how="all")
             
-            # 2. Package the new data
             new_row = pd.DataFrame([{
                 "Date": date_val.strftime("%Y-%m-%d"),
                 "Type": type_val,
                 "Description": desc_val,
                 "Category": cat_val,
                 "Amount": amount_val,
-                "User": st.session_state.username # Stamps the transaction with the active user
+                "User": st.session_state.username
             }])
             
-            # 3. Save to Google Sheets
             updated_df = pd.concat([existing_data, new_row], ignore_index=True)
             conn.update(worksheet="Transaction", data=updated_df)
-            st.success("Transaction securely saved to the Vault!")
+            st.success(f"✅ Saved: {cat_val} ({type_val})")
 
-# --- MAIN DASHBOARD CONTENT ---
+# --- 5. MAIN DASHBOARD ---
 st.title("💰 Your Secure Budget Vault")
 
-# --- IN-APP USER GUIDE ---
+# User Guide Expander
 with st.expander("📖 User Guide: How to use this app"):
     st.markdown("""
     ### 📝 Adding Transactions (Sidebar)
-    * **Type:** Select Income (adds money), Expense (subtracts money), or Transfer.
-    * **Category:** Groups your spending to generate your pie charts.
+    * **Transaction Type:** Income (adds money), Expense (subtracts money), Transfer (moves money).
+    * **Category:** Groups your spending to generate your analytics.
     
-    ### 📊 Dashboard Features
-    * **Private Vault:** You will only see data logged under your current Username. To see other data, change the username in the sidebar.
-    * **Ledger:** View and verify your raw data in the Ledger tab.
+    ### 📊 Dashboard View Modes
+    * **Custom Cycle:** View your data across a specific date range (like your personal pay cycle).
+    * **Daily View:** Zoom in on a single specific day to check daily limits.
     """)
 
-# --- FETCH & FILTER DATA ---
+# Fetch and Filter Data securely
 try:
     all_data = conn.read(worksheet="Transaction", usecols=list(range(6)), ttl=0)
     all_data = all_data.dropna(how="all")
-    
-    # SECURITY FILTER: Only keep rows where the User matches the sidebar input
-    df = all_data[all_data['User'] == st.session_state.username]
-    
+    df = all_data[all_data['User'] == st.session_state.username].copy()
 except Exception as e:
     st.error(f"Database connection error: {e}")
     st.stop()
 
-# --- RENDER DASHBOARD ---
 if df.empty:
-    st.info(f"No data found for user: **{st.session_state.username}**. Add a transaction in the sidebar to populate your dashboard!")
+    st.info(f"No data found for user: **{st.session_state.username}**. Add a transaction in the sidebar!")
 else:
-    # Ensure math works correctly
+    # Clean the data
+    df['Date'] = pd.to_datetime(df['Date']).dt.date
     df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce').fillna(0)
     
-    # Calculate totals based on the 'Type' column
-    total_income = df[df['Type'] == 'Income']['Amount'].sum()
-    total_expense = df[df['Type'] == 'Expense']['Amount'].sum()
-    balance = total_income - total_expense
+    # --- DASHBOARD VIEW MODE TOGGLE ---
+    st.markdown("### 📊 Dashboard View Mode")
+    view_mode = st.radio(
+        "How would you like to view your data?", 
+        ["Custom Cycle", "Daily View"], 
+        horizontal=True,
+        help="Toggle between viewing a span of time or a single day."
+    )
     
-    # Draw top metrics
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Income", f"${total_income:,.2f}")
-    col2.metric("Total Expenses", f"${total_expense:,.2f}")
-    col3.metric("Current Balance", f"${balance:,.2f}", delta=balance)
-    
+    # Filter by dates based on toggle
+    if view_mode == "Custom Cycle":
+        # Default to the first of the current month up to today
+        today = date.today()
+        start_of_month = today.replace(day=1)
+        selected_dates = st.date_input(
+            "Select your cycle:", 
+            value=(start_of_month, today),
+            help="Pick a Start Date and an End Date."
+        )
+        
+        # Ensure two dates are picked before filtering
+        if len(selected_dates) == 2:
+            start, end = selected_dates
+            cycle_df = df[(df['Date'] >= start) & (df['Date'] <= end)]
+        else:
+            cycle_df = df[df['Date'] == selected_dates[0]] # Fallback if only one clicked
+            
+    else: # Daily View
+        selected_date = st.date_input(
+            "Select a day:", 
+            value=date.today(),
+            help="Pick a specific calendar day to view."
+        )
+        cycle_df = df[df['Date'] == selected_date]
+
+    # --- CALCULATIONS & METRICS ---
     st.divider()
     
-    # Draw Tabs for Charts and Data
-    tab1, tab2 = st.tabs(["📊 Analytics", "📋 Ledger History"])
+    # Math logic: Note that "Transfer" is naturally ignored here
+    total_income = cycle_df[cycle_df['Type'] == 'Income']['Amount'].sum()
+    total_expense = cycle_df[cycle_df['Type'] == 'Expense']['Amount'].sum()
+    balance = total_income - total_expense
+    
+    c = st.session_state.currency # Grab chosen currency symbol
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Cycle Income", f"{c}{total_income:,.2f}")
+    col2.metric("Cycle Expenses", f"{c}{total_expense:,.2f}")
+    col3.metric("Current Balance", f"{c}{balance:,.2f}", delta=balance)
+    
+    # --- TABS FOR CHARTS AND DATA ---
+    st.write("") # Spacing
+    tab1, tab2 = st.tabs(["📊 Analytics Charts", "📋 Ledger History"])
     
     with tab1:
         st.subheader("Spending by Category")
-        expense_df = df[df['Type'] == 'Expense']
+        expense_df = cycle_df[cycle_df['Type'] == 'Expense']
         if not expense_df.empty:
             fig = px.pie(expense_df, values='Amount', names='Category', hole=0.4)
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.write("No expenses logged yet to chart.")
+            st.write("No expenses logged in this timeframe to chart.")
             
     with tab2:
         st.subheader("Secure Ledger")
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        # Format the dataframe to look nice
+        st.dataframe(
+            cycle_df, 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Amount": st.column_config.NumberColumn("Amount", format=f"{c}%.2f")
+            }
+        )
