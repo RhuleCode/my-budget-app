@@ -47,6 +47,20 @@ with st.sidebar:
             st.rerun()
     
     st.divider()
+
+    # --- NEW: DEVELOPER PROFILE FIELD ---
+    with st.expander("👨‍💻 About the Developer", expanded=False):
+        st.markdown("""
+        **Developer:** `Nana Kwaku Bentum Rhule`  
+        **Specialization:** Cybersecurity & Secure Application Development  
+        **Environment:** Environment built and tested on Ubuntu Linux  
+        
+        *Building secure tools for modern financial tracking.*
+        """)
+        # Link button directly pointing to your main GitHub account page
+        st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
+    
+    st.divider()
     
     st.header("📝 New Transaction")
     # Form keeps inputs grouped and prevents spacing crashes
