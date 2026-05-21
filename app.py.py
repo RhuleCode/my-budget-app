@@ -90,14 +90,7 @@ with st.sidebar:
             options=curr_options, 
             help="Choose the currency symbol to display on your dashboard."
         )
-    with col2:
-        # Log Out Button
-        st.write("") # Spacing alignment
-        st.write("")
-        if st.button("Log Out", help="Click to securely clear your session and lock the vault."):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
+   
     
     st.divider()
         # --- NEW: DEVELOPER PROFILE FIELD ---
