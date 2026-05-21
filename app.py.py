@@ -233,6 +233,9 @@ else:
     with tab2:
         st.subheader("Secure Core Transaction Ledger Logs")
         
+        # Ensure c_display is defined correctly for this scope
+        c_display = st.session_state.get("currency", "GH₵")
+        
         # This makes the table editable!
         edited_df = st.data_editor(
             cycle_df, 
