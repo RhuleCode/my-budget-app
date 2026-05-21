@@ -53,6 +53,21 @@ with st.sidebar:
             format="%.2f", 
             help="Enter the exact monetary amount."
         )
+        curr_options = st.selectbox(
+            "Currency",
+            ["GH₵ (GHS)", 
+            "₦ (NGN)", 
+            "$ (USD)", 
+            "€ (EUR)", 
+            "£ (GBP)", 
+            "KSh (KES)", 
+            "R (ZAR)", 
+            "¥ (JPY)"]
+        st.session_state.currency = st.selectbox(
+            "Currency", 
+            options=curr_options, 
+            help="Choose the currency symbol to display on your dashboard."
+        )
         
         submitted = st.form_submit_button("Save to Vault")
         
@@ -73,23 +88,9 @@ with st.sidebar:
             conn.update(worksheet="Transaction", data=updated_df)
             st.success(f"✅ Saved: {cat_val} ({type_val})")
 
-     # Account & Settings Row
-    col1, col2 = st.columns(2)
-    with col1:
-        # Currency Selector
-        curr_options = ["GH₵ (GHS)", 
-            "₦ (NGN)", 
-            "$ (USD)", 
-            "€ (EUR)", 
-            "£ (GBP)", 
-            "KSh (KES)", 
-            "R (ZAR)", 
-            "¥ (JPY)"]
-        st.session_state.currency = st.selectbox(
-            "Currency", 
-            options=curr_options, 
-            help="Choose the currency symbol to display on your dashboard."
-        )
+    
+       
+        
    
     
     st.divider()
