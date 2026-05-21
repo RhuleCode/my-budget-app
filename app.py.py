@@ -54,10 +54,10 @@ with st.sidebar:
             help="Enter the exact monetary amount."
         )
         # 1. Currency Selector inside the form
-    currency = st.selectbox(
-        "Currency", 
-        ["GH₵ (GHS)", "₦ (NGN)", "$ (USD)", "€ (EUR)", "£ (GBP)", "KSh (KES)", "R (ZAR)", "¥ (JPY)"]
-        )
+        currency = st.selectbox(
+            "Currency", 
+            ["GH₵ (GHS)", "₦ (NGN)", "$ (USD)", "€ (EUR)", "£ (GBP)", "KSh (KES)", "R (ZAR)", "¥ (JPY)"]
+            )
         
         submitted = st.form_submit_button("Save to Vault")
         
