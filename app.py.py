@@ -24,7 +24,14 @@ with st.sidebar:
     col1, col2 = st.columns(2)
     with col1:
         # Currency Selector
-        curr_options = ["$", "€", "£", "GH₵"]
+        curr_options = ["GH₵ (GHS)", 
+            "₦ (NGN)", 
+            "$ (USD)", 
+            "€ (EUR)", 
+            "£ (GBP)", 
+            "KSh (KES)", 
+            "R (ZAR)", 
+            "¥ (JPY)"]
         st.session_state.currency = st.selectbox(
             "Currency", 
             options=curr_options, 
