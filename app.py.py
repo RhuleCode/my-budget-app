@@ -4,6 +4,18 @@ import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 from datetime import date, timedelta
 
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# The Gatekeeper: If not logged in, show login page and STOP the script
+if not st.session_state.logged_in:
+    # --- YOUR LOGIN PAGE CODE HERE ---
+    username = st.text_input("Username")
+    if st.button("Log In"):
+        st.session_state.logged_in = True
+        st.session_state.username = username
+        st.rerun()
+    st.stop()  # CRITICAL: This prevents the dashboard from loading!
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
 
