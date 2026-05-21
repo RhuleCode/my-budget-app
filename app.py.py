@@ -20,32 +20,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 with st.sidebar:
     st.header(f"👋 Welcome, {st.session_state.username}!")
     
-    # Account & Settings Row
-    col1, col2 = st.columns(2)
-    with col1:
-        # Currency Selector
-        curr_options = ["GH₵ (GHS)", 
-            "₦ (NGN)", 
-            "$ (USD)", 
-            "€ (EUR)", 
-            "£ (GBP)", 
-            "KSh (KES)", 
-            "R (ZAR)", 
-            "¥ (JPY)"]
-        st.session_state.currency = st.selectbox(
-            "Currency", 
-            options=curr_options, 
-            help="Choose the currency symbol to display on your dashboard."
-        )
-    with col2:
-        # Log Out Button
-        st.write("") # Spacing alignment
-        st.write("")
-        if st.button("Log Out", help="Click to securely clear your session and lock the vault."):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-    
+   
     st.divider()
 
     
@@ -97,6 +72,33 @@ with st.sidebar:
             updated_df = pd.concat([existing_data, new_row], ignore_index=True)
             conn.update(worksheet="Transaction", data=updated_df)
             st.success(f"✅ Saved: {cat_val} ({type_val})")
+
+     # Account & Settings Row
+    col1, col2 = st.columns(2)
+    with col1:
+        # Currency Selector
+        curr_options = ["GH₵ (GHS)", 
+            "₦ (NGN)", 
+            "$ (USD)", 
+            "€ (EUR)", 
+            "£ (GBP)", 
+            "KSh (KES)", 
+            "R (ZAR)", 
+            "¥ (JPY)"]
+        st.session_state.currency = st.selectbox(
+            "Currency", 
+            options=curr_options, 
+            help="Choose the currency symbol to display on your dashboard."
+        )
+    with col2:
+        # Log Out Button
+        st.write("") # Spacing alignment
+        st.write("")
+        if st.button("Log Out", help="Click to securely clear your session and lock the vault."):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+    
     st.divider()
         # --- NEW: DEVELOPER PROFILE FIELD ---
     with st.expander("👨‍💻 About the Developer", expanded=False):
