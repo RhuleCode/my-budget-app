@@ -234,13 +234,23 @@ else:
         st.subheader("Secure Ledger")
         # Format the dataframe to look nice
         st.dataframe(
+            # This makes the table editable!
+        edited_df = st.data_editor(
             cycle_df, 
             use_container_width=True, 
             hide_index=True,
             column_config={
-                "Amount": st.column_config.NumberColumn("Amount", format=f"{c}%.2f")
+                "Amount": st.column_config.NumberColumn("Amount Value", format=f"{c_display} %.2f"),
+                "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD")
             }
         )
+
+        # Save button for edits
+        if st.button("💾 Save Ledger Edits"):
+            # Logic: We overwrite the sheet with the new edited dataframe
+            conn.update(worksheet="Transaction", data=edited_df)
+            st.success("Ledger updated successfully!")
+            st.rerun()
 
     # --- PLACED EXACTLY HERE BELOW THE LEDGER HISTORY DATA TABLE ---
         st.write("")
