@@ -247,4 +247,3 @@ else:
                 except Exception as wipe_error:
                     st.error(f"Security override failed to clear spreadsheet log rows: {wipe_error}")
 
-    rride f
