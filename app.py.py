@@ -6,13 +6,30 @@ from datetime import date, timedelta
 
 
 # --- 1. PAGE SETUP ---
-st.set_page_config(page_title="Secure Budget Vault", page_icon="💰", layout="wide")
+# 1. SETUP & CONFIG (Always first)
+st.set_page_config(page_title="Secure Budget Vault", layout="wide")
 
-# --- 2. SESSION STATE (MEMORY) ---
-if "username" not in st.session_state:
-    st.session_state.username = "nkb" # Default user
-if "currency" not in st.session_state:
-    st.session_state.currency = "$"
+# 2. INITIALIZE SESSION
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# 3. AUTHENTICATION GATE (The Login Page)
+if not st.session_state.logged_in:
+    st.title("💰 Secure Budget Vault")
+    st.subheader("Authentication Required")
+    
+    with st.form("login"):
+        user = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.form_submit_button("Access Vault"):
+            if user == "nkb" and password == "1234":
+                st.session_state.logged_in = True
+                st.session_state.username = user
+                st.rerun() # Forces hard refresh to dashboard
+            else:
+                st.error("Invalid login.")
+    st.stop() # CRITICAL: Stop here so dashboard code never runs
+
 
 # --- 3. DATABASE CONNECTION ---
 conn = st.connection("gsheets", type=GSheetsConnection)
