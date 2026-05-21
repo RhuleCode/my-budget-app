@@ -198,10 +198,31 @@ else:
     tab1, tab2 = st.tabs(["📊 Analytics Charts", "📋 Ledger History"])
     
     with tab1:
-        st.subheader("Spending by Category")
-        expense_df = cycle_df[cycle_df['Type'] == 'Expense']
+        st.subheader("Category Expenditure Allocation Splits")
+        expense_df = cycle_df[
+            (cycle_df['Type'] == 'Expense') | 
+            (cycle_df['Category'] == 'Purchase')
+        ].copy()
+        
         if not expense_df.empty:
-            fig = px.pie(expense_df, values='Amount', names='Category', hole=0.4)
+            # Create the chart
+            fig = px.pie(expense_df, values='Amount', names='Category', hole=0.3)
+            
+            # This adds the 3D-like depth/beveled effect
+            fig.update_traces(
+                textposition='inside', 
+                textinfo='percent+label',
+                pull=[0.05] * len(expense_df), # Slightly separates the slices for a "popped out" 3D feel
+                marker=dict(line=dict(color='#000000', width=2)) # Adds a defined border to each slice
+            )
+            
+            # Dark mode styling to match your theme
+            fig.update_layout(
+                template="plotly_dark", 
+                paper_bgcolor='rgba(0,0,0,0)', 
+                plot_bgcolor='rgba(0,0,0,0)',
+                showlegend=True
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.write("No expenses logged in this timeframe to chart.")
