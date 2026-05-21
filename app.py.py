@@ -116,7 +116,7 @@ with st.sidebar:
 st.title("💰 Your Secure Budget Vault")
 
 # User Guide Expander
-with st.expander("📖 Updated User Guide: How to use this app"):
+with st.expander("📖  User Guide: How to use this app"):
     st.markdown("""
     ### 📝 Adding Transactions (Sidebar)
     * **Transaction Type:** Income (adds money), Expense (subtracts money), Transfer (moves money).
