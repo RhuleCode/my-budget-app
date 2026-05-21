@@ -96,10 +96,16 @@ with st.sidebar:
         # Link button directly pointing to your main GitHub account page
         st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
     st.divider()
+    with st.sidebar:
+    # 1. Log Out Logic
     if st.button("Log Out"):
-        for key in list(st.session_state.keys()): del st.session_state[key]
+        # Clear all session state variables
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        # Force a refresh to the login state
         st.rerun()
-    st.divider()
+        
+    st.divider() # Keep the logout button separated from other controls
 
     # 2. PASTE ACCOUNT SETTINGS HERE
     with st.expander("⚙️ Account Settings"):
