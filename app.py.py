@@ -146,13 +146,29 @@ if "username" in st.session_state:
     
     with st.expander("📖 User Guide: How to use this app"):
         st.markdown("""
-        ### 📝 Adding Transactions (Sidebar)
-        * **Transaction Type:** Income (adds money), Expense (subtracts money), Transfer (moves money).
-        * **Category:** Groups your spending to generate your analytics.
+        Welcome to your Secure Budget Vault! Here is how to get the most out of your financial command center:
         
-        ### 📊 Dashboard View Modes
-        * **Custom Cycle:** View your data across a specific date range.
-        * **Daily View:** Zoom in on a single specific day to check daily limits.
+        ### 📝 1. Logging Transactions (Sidebar)
+        Use the sidebar form to record every financial move in real-time.
+        * **Transaction Types:** * **Income:** Money coming in (adds to balance).
+          * **Expense:** Money going out (subtracts from balance).
+          * **Transfer:** Moving money between accounts (ignored in total calculations).
+        * **Currency Selector:** Pick your preferred currency. Your choice will instantly update the dashboard displays.
+        
+        ### 📊 2. Navigating the Dashboard
+        Control what data you see using the **View Mode** toggle:
+        * **Custom Cycle:** Select a specific date range (like your personal pay cycle or the current month) to see your overarching financial health.
+        * **Daily View:** Zoom in on a single specific day to review daily spending limits.
+        
+        ### 📈 3. Exploring Your Insights (The Tabs)
+        * **📊 Analytics Charts:** View a dynamic, interactive pie chart that breaks down exactly which categories are draining your wallet.
+        * **📋 Ledger History:** A complete, real-time log of your transactions. **Tip:** This table is editable! Double-click on any amount or date to quickly fix a typo.
+        * **📄 Monthly Summary:** Review your Net Flow and track your **Performance Trend** to see if you are staying in the green.
+        
+        ### ⚙️ 4. Security & Data Management
+        * **Log Out:** Always lock your vault when you are finished using the primary button in the sidebar.
+        * **Master Reset:** Need a completely blank slate? Open the **⚙️ Account Settings** menu at the bottom of the sidebar to securely wipe your ledger history.
+        * **Delete Account:** You can permanently erase your account and all associated data from the settings menu.
         """)
         
     try:
