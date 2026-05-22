@@ -92,7 +92,8 @@ if "username" in st.session_state:
         with st.expander("👨‍💻 About the Developer", expanded=False):
             st.markdown("""
             **Developer:** `Nana Kwaku Bentum Rhule`  
-            **Specialization:** Cybersecurity & Secure Application Development  
+            **Specialization:** Cybersecurity & Secure Application Development
+            **Email:** [yourname@example.com](mailto:nkbrhule@gmail.com)
             **Environment:** Environment built and tested on Ubuntu Linux  
             
             *Building secure tools for modern financial tracking.*
