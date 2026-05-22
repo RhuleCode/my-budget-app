@@ -259,7 +259,50 @@ if "username" in st.session_state:
             col3.metric("Net Flow", f"{c} {balance:,.2f}")
             
             st.divider()
-            st.subheader("📈 Performance Trend")
+
+            # --- NEW INTERACTIVE CHART LOGIC STARTS HERE ---
+            st.subheader("📈 Live Financial Trend")
+            
+            # Filter out transfers for the chart
+            trend_df = cycle_df[cycle_df['Type'] != 'Transfer'].copy()
+            
+            if not trend_df.empty:
+                # Make expenses negative for math purposes
+                trend_df['Net Amount'] = trend_df.apply(
+                    lambda x: x['Amount'] if x['Type'] == 'Income' else -x['Amount'], axis=1
+                )
+                
+                # Group by date and calculate running balance
+                daily_summary = trend_df.groupby('Date')['Net Amount'].sum().reset_index()
+                daily_summary = daily_summary.sort_values(by='Date')
+                daily_summary['Running Balance'] = daily_summary['Net Amount'].cumsum()
+                
+                # Build the chart
+                fig_trend = px.line(
+                    daily_summary, 
+                    x='Date', 
+                    y='Running Balance', 
+                    markers=True,
+                    title='Your Net Balance Over Time'
+                )
+                
+                fig_trend.update_layout(
+                    xaxis_title="Timeline",
+                    yaxis_title=f"Total Balance ({c})",
+                    hovermode="x unified",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    margin=dict(l=0, r=0, t=40, b=0)
+                )
+                
+                st.plotly_chart(fig_trend, use_container_width=True)
+            else:
+                st.info("Log some income and expenses to see your trend chart!")
+            # --- NEW INTERACTIVE CHART LOGIC ENDS HERE ---
+
+            st.divider()
+            
+            st.subheader("📊 Performance vs Last Period")
             previous_month_expense = 100.0 
             delta_value = total_expense - previous_month_expense
             
