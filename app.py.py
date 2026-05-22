@@ -57,7 +57,13 @@ if "username" in st.session_state:
             )
             currency = st.selectbox(
                 "Currency", 
-                ["GH₵ (GHS)", "₦ (NGN)", "$ (USD)", "€ (EUR)", "£ (GBP)", "KSh (KES)", "R (ZAR)", "¥ (JPY)"]
+                ["GH₵ (GHS)", "₦ (NGN)", "KSh (KES)", "R (ZAR)", "E£ (EGP)",
+                    # Major Global Currencies
+                    "$ (USD)", "€ (EUR)", "£ (GBP)", "¥ (JPY)", "A$ (AUD)", "C$ (CAD)", "CHF (CHF)",
+                    # Asian & Middle Eastern Currencies
+                    "₹ (INR)", "S$ (SGD)", "د.إ (AED)", "₩ (KRW)", "₺ (TRY)", "₱ (PHP)",
+                    # Latin American Currencies
+                    "R$ (BRL)", "Mex$ (MXN)", "ARS$ (ARS)"]
             )
             
             submitted = st.form_submit_button("Save to Vault")
@@ -136,7 +142,7 @@ if "username" in st.session_state:
     # LOGGED IN: MAIN DASHBOARD
     # ==========================================
     st.title("BUDGET-FLOW")
-    st.subheader("💰 Your Secure Budget Vault")
+    st.subheader("💰 Budgeting without the blind spots")
     
     with st.expander("📖 User Guide: How to use this app"):
         st.markdown("""
