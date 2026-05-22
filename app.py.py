@@ -135,7 +135,8 @@ if "username" in st.session_state:
     # ==========================================
     # LOGGED IN: MAIN DASHBOARD
     # ==========================================
-    st.title("💰 Your Secure Budget Vault")
+    st.title("  BUDGET-FLOW
+    💰 Your Secure Budget Vault")
     
     with st.expander("📖 User Guide: How to use this app"):
         st.markdown("""
