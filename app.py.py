@@ -258,7 +258,7 @@ if "username" in st.session_state:
 # NOT LOGGED IN: LOGIN / SIGNUP PAGE
 # ==========================================
 else:
-    st.title("🌱 Personal Wealth Vault")
+    st.title(" BUDGET-FLOW")
     st.markdown(
         """
         <div style="background-color: #1E293B; padding: 22px; border-radius: 12px; margin-bottom: 25px; border-left: 5px solid #10B981;">
