@@ -101,7 +101,15 @@ if "username" in st.session_state:
             st.link_button("🌐 View GitHub Profile", "https://github.com/Rhulecode")
             
         st.divider()
-        
+        with st.expander("🛡️ Privacy Policy"):
+            st.markdown("""
+            * **Zero External Connections:** We do not connect to your bank or MoMo. 
+            * **Data Ownership:** We never sell, share, or track your data.
+            * **Encrypted Credentials:** Your password is cryptographically hashed.
+            * **Full Control:** You can wipe your data completely in Account Settings.
+            """)
+            
+        st.divider()
         # Log Out Logic
         if st.button("Log Out", type="primary"):
             st.session_state.clear() # Wipes all memory
@@ -382,3 +390,14 @@ else:
                         st.success("🎉 Your vault is ready! Switch over to 'Log In' to get started.")
                 else:
                     st.warning("Please choose a username and password to sign up.")
+                # --- ADD THIS AT THE VERY BOTTOM OF THE SCRIPT ---
+                st.write("") # Adds a little spacing
+                with st.expander("🛡️ Read our Privacy Policy"):
+                    st.markdown("""
+                    **Privacy by Design** BUDGET-FLOW is built to be a secure, manual-entry financial vault. 
+                    
+                    * **Zero External Connections:** We do not connect to your bank, MoMo, or any external financial institutions. You are the only one who can enter data into your vault.
+                    * **Data Ownership:** You own 100% of your data. We do not track your location, and we never sell, share, or use your financial entries for advertising.
+                    * **Encrypted Credentials:** Your password is cryptographically hashed (SHA-256) before being saved. We cannot read your password.
+                    * **Right to be Forgotten:** You have full control. You can completely wipe your ledger or permanently delete your account at any time from the dashboard settings.
+                    """)
