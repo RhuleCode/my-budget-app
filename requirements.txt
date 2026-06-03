@@ -1,4 +1,4 @@
 streamlit
 plotly
 pandas
-st-gsheets-connection
+mysql-connector-python
