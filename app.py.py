@@ -280,8 +280,8 @@ if "username" in st.session_state:
                         
                         # Instantly re-draw UI panels
                         st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to sync updates: {e}")            
+                    except Exception as e:
+                        st.error(f"Failed to sync updates: {e}")            
         with tab3:
             st.subheader("📄 Financial Summary Report")
             scope = "Daily" if view_mode == "Daily View" else "Cycle"
