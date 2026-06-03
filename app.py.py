@@ -14,8 +14,7 @@ def get_mysql_connection():
         return mysql.connector.connect(
             host="localhost",
             user="root",
-            password="", # Left blank for default local AMPPS
-            database="budget_flow"
+            password="mysql" # Standard AMPPS default password            database="budget_flow"
         )
     except Exception as e:
         st.error(f"MySQL Database connection error: {e}")
