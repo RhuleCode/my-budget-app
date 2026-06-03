@@ -245,87 +245,17 @@ if "username" in st.session_state:
             else:
                 st.write("No expenses logged in this timeframe to chart.")
                 
-            with tab2:
-                st.subheader("Secure Core Transaction Ledger Logs")
-                
-                # 1. Explicitly configure columns to force grid line visibility in the UI canvas
-                edited_df = st.data_editor(
-                    cycle_df, 
-                    use_container_width=True, 
-                    hide_index=True,
-                    key="ledger_editor",
-                    column_config={
-                        "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD", required=True),
-                        "Type": st.column_config.SelectboxColumn("Transaction Type", options=["Income", "Expense", "Transfer"], required=True),
-                        "Description": st.column_config.TextColumn("Description"),
-                        "Category": st.column_config.SelectboxColumn("Category", options=["Food", "Rent", "Salary", "Transport", "Utilities", "Purchase", "Other"]),
-                        "Amount": st.column_config.NumberColumn("Amount Value", format=f"{c} %.2f", required=True),
-                        "User": st.column_config.TextColumn("User", disabled=True)  # Read-only for protection
-                    }
-                )
-                
-                # 2. Localized Sync Engine Button with its unique key tracker
-                if st.button("🔄 Sync Edits & Refresh Ledger", use_container_width=True, key="unique_ledger_sync_btn"):
-                    try:
-                        global_tx = conn.read(worksheet="Transaction", ttl=0).dropna(how="all")
-                        non_user_tx = global_tx[global_tx['User'] != st.session_state.username]
-                        updated_global_df = pd.concat([non_user_tx, edited_df], ignore_index=True)
-                        conn.update(worksheet="Transaction", data=updated_global_df)
-                        st.success("✅ Ledger synced successfully!")
-                        st.toast("Data refreshed!", icon="⚡")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Failed to sync updates: {e}")        
-        with tab3:
-            st.subheader("📄 Financial Summary Report")
-            scope = "Daily" if view_mode == "Daily View" else "Cycle"
-            
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Income", f"{c} {total_income:,.2f}")
-            col2.metric("Expenses", f"{c} {total_expense:,.2f}")
-            col3.metric("Net Flow", f"{c} {balance:,.2f}")
-            
-            st.divider()
-
-            # --- NEW INTERACTIVE CHART LOGIC STARTS HERE ---
-            st.subheader("📈 Live Financial Trend")
-            
-            # Filter out transfers for the chart
-            trend_df = cycle_df[cycle_df['Type'] != 'Transfer'].copy()
-            
-            if not trend_df.empty:
-                # Make expenses negative for math purposes
-                trend_df['Net Amount'] = trend_df.apply(
-                    lambda x: x['Amount'] if x['Type'] == 'Income' else -x['Amount'], axis=1
-                )
-                
-                # Group by date and calculate running balance
-                daily_summary = trend_df.groupby('Date')['Net Amount'].sum().reset_index()
-                daily_summary = daily_summary.sort_values(by='Date')
-                daily_summary['Running Balance'] = daily_summary['Net Amount'].cumsum()
-                
-                # Build the chart
-                fig_trend = px.line(
-                    daily_summary, 
-                    x='Date', 
-                    y='Running Balance', 
-                    markers=True,
-                    title='Your Net Balance Over Time'
-                )
-                
-                fig_trend.update_layout(
-                    xaxis_title="Timeline",
-                    yaxis_title=f"Total Balance ({c})",
-                    hovermode="x unified",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    margin=dict(l=0, r=0, t=40, b=0)
-                )
-                
-                st.plotly_chart(fig_trend, use_container_width=True)
-            else:
-                st.info("Log some income and expenses to see your trend chart!")
-            # --- NEW INTERACTIVE CHART LOGIC ENDS HERE ---
+        with tab2:
+            st.subheader("Secure Core Transaction Ledger Logs")
+            st.data_editor(
+                cycle_df, 
+                use_container_width=True, 
+                hide_index=True,
+                column_config={
+                    "Amount": st.column_config.NumberColumn("Amount Value", format=f"{c} %.2f"),
+                    "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD")
+                }
+            )
             
         with tab3:
             st.subheader("📄 Financial Summary Report")
