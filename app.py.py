@@ -245,44 +245,43 @@ if "username" in st.session_state:
             else:
                 st.write("No expenses logged in this timeframe to chart.")
                 
-        with tab2:
-            st.subheader("Secure Core Transaction Ledger Logs")
-            
-            # 1. Capture user inline changes inside the editor (Added key tracker)
-            edited_df = st.data_editor(
-                cycle_df, 
-                use_container_width=True, 
-                hide_index=True,
-                key="ledger_editor",
-                column_config={
-                    "Amount": st.column_config.NumberColumn("Amount Value", format=f"{c} %.2f"),
-                    "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD")
-                }
-            )
-            
-            # 2. Localized Sync and Refresh Engine Button
-            if st.button("🔄 Sync Edits & Refresh Ledger", use_container_width=True):
-                try:
-                    # Pull down the global sheet to protect other users' entries
-                    global_tx = conn.read(worksheet="Transaction", ttl=0).dropna(how="all")
-                    
-                    # Isolate rows that don't belong to the current active user
-                    non_user_tx = global_tx[global_tx['User'] != st.session_state.username]
-                    
-                    # Append your edited user rows to the other users' safe data blocks
-                    updated_global_df = pd.concat([non_user_tx, edited_df], ignore_index=True)
-                    
-                    # Update Google Sheets database
-                    conn.update(worksheet="Transaction", data=updated_global_df)
-                    
-                    st.success("✅ Ledger synced to Google Sheets successfully!")
-                    st.toast("Data refreshed!", icon="⚡")
-                    
-                    # Instantly re-draw UI panels
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to sync updates: {e}")
-            
+           with tab2:
+                st.subheader("Secure Core Transaction Ledger Logs")
+                
+                # 1. Capture user inline changes inside the editor
+                edited_df = st.data_editor(
+                    cycle_df, 
+                    use_container_width=True, 
+                    hide_index=True,
+                    key="ledger_editor",
+                    column_config={
+                        "Amount": st.column_config.NumberColumn("Amount Value", format=f"{c} %.2f"),
+                        "Date": st.column_config.DateColumn("Date Logged", format="YYYY-MM-DD")
+                    }
+                )
+                
+                # 2. Localized Sync Engine Button with explicit unique key to fix duplicate error
+                if st.button("🔄 Sync Edits & Refresh Ledger", use_container_width=True, key="unique_ledger_sync_btn"):
+                    try:
+                        # Pull down the global sheet to protect other users' entries
+                        global_tx = conn.read(worksheet="Transaction", ttl=0).dropna(how="all")
+                        
+                        # Isolate rows that don't belong to the current active user
+                        non_user_tx = global_tx[global_tx['User'] != st.session_state.username]
+                        
+                        # Append your edited user rows to the other users' safe data blocks
+                        updated_global_df = pd.concat([non_user_tx, edited_df], ignore_index=True)
+                        
+                        # Update Google Sheets database
+                        conn.update(worksheet="Transaction", data=updated_global_df)
+                        
+                        st.success("✅ Ledger synced to Google Sheets successfully!")
+                        st.toast("Data refreshed!", icon="⚡")
+                        
+                        # Instantly re-draw UI panels
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to sync updates: {e}")            
         with tab3:
             st.subheader("📄 Financial Summary Report")
             scope = "Daily" if view_mode == "Daily View" else "Cycle"
