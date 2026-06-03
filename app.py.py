@@ -1,18 +1,41 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from streamlit_gsheets import GSheetsConnection
+import mysql.connector
 from datetime import date, timedelta
 import hashlib # CRITICAL: Added for password hashing
 
 # --- 1. INITIAL SETUP & CONNECTION ---
 st.set_page_config(page_title="Secure Budget Vault", layout="wide")
 
-try:
-    conn = st.connection("gsheets", type=GSheetsConnection)
-except Exception as e:
-    st.error(f"Database connection error: {e}")
-    st.stop()
+# --- NEW MYSQL SETUP & HELPER FUNCTIONS ---
+def get_mysql_connection():
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="", # Left blank for default local AMPPS
+            database="budget_flow"
+        )
+    except Exception as e:
+        st.error(f"MySQL Database connection error: {e}")
+        st.stop()
+
+def run_query(query, params=None):
+    """Fetches data from MySQL and returns a Pandas DataFrame."""
+    conn = get_mysql_connection()
+    df = pd.read_sql(query, conn, params=params)
+    conn.close()
+    return df
+
+def run_command(query, params):
+    """Executes INSERT, UPDATE, or DELETE commands in MySQL."""
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # Set a default currency if not already set
 if "currency" not in st.session_state:
@@ -58,32 +81,32 @@ if "username" in st.session_state:
             currency = st.selectbox(
                 "Currency", 
                 ["GH₵ (GHS)", "₦ (NGN)", "KSh (KES)", "R (ZAR)", "E£ (EGP)",
-                    # Major Global Currencies
-                    "$ (USD)", "€ (EUR)", "£ (GBP)", "¥ (JPY)", "A$ (AUD)", "C$ (CAD)", "CHF (CHF)",
-                    # Asian & Middle Eastern Currencies
-                    "₹ (INR)", "S$ (SGD)", "د.إ (AED)", "₩ (KRW)", "₺ (TRY)", "₱ (PHP)",
-                    # Latin American Currencies
-                    "R$ (BRL)", "Mex$ (MXN)", "ARS$ (ARS)"]
+                 # Major Global Currencies
+                 "$ (USD)", "€ (EUR)", "£ (GBP)", "¥ (JPY)", "A$ (AUD)", "C$ (CAD)", "CHF (CHF)",
+                 # Asian & Middle Eastern Currencies
+                 "₹ (INR)", "S$ (SGD)", "د.إ (AED)", "₩ (KRW)", "₺ (TRY)", "₱ (PHP)",
+                 # Latin American Currencies
+                 "R$ (BRL)", "Mex$ (MXN)", "ARS$ (ARS)"]
             )
             
             submitted = st.form_submit_button("Save to Vault")
             
             if submitted:
                 st.session_state.currency = currency # Save choice globally
-                existing_data = conn.read(worksheet="Transaction", usecols=list(range(6)), ttl=0)
-                existing_data = existing_data.dropna(how="all")
                 
-                new_row = pd.DataFrame([{
-                    "Date": date_val.strftime("%Y-%m-%d"),
-                    "Type": type_val,
-                    "Description": desc_val,
-                    "Category": cat_val,
-                    "Amount": amount_val,
-                    "User": st.session_state.username
-                }])
-                
-                updated_df = pd.concat([existing_data, new_row], ignore_index=True)
-                conn.update(worksheet="Transaction", data=updated_df)
+                # --- MYSQL UPDATE: Insert new transaction directly ---
+                insert_query = """
+                    INSERT INTO transactions (date, type, description, category, amount, user)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                run_command(insert_query, (
+                    date_val.strftime("%Y-%m-%d"),
+                    type_val,
+                    desc_val,
+                    cat_val,
+                    amount_val,
+                    st.session_state.username
+                ))
                 st.success(f"✅ Saved: {cat_val} ({type_val})")
 
         st.divider()
@@ -125,7 +148,9 @@ if "username" in st.session_state:
             confirm_delete = st.checkbox("I understand this deletes my account.")
             if st.button("Delete My Account"):
                 if confirm_delete:
-                    # [Insert your Deletion Logic here]
+                    # --- MYSQL UPDATE: Delete user and their transactions ---
+                    run_command("DELETE FROM transactions WHERE user = %s", (st.session_state.username,))
+                    run_command("DELETE FROM users WHERE username = %s", (st.session_state.username,))
                     st.success("Account deleted.")
                     st.session_state.clear()
                     st.rerun()
@@ -140,8 +165,8 @@ if "username" in st.session_state:
             if confirm_wipe:
                 if st.button("🔥 Confirm Clear"):
                     try:
-                        blank_slate_df = pd.DataFrame(columns=["Date", "Type", "Description", "Category", "Amount", "User"])
-                        conn.update(worksheet="Transaction", data=blank_slate_df)
+                        # --- MYSQL UPDATE: Delete only this user's transactions ---
+                        run_command("DELETE FROM transactions WHERE user = %s", (st.session_state.username,))
                         st.success("Vault wiped!")
                         st.rerun()
                     except Exception as e:
@@ -181,9 +206,10 @@ if "username" in st.session_state:
         """)
         
     try:
-        all_data = conn.read(worksheet="Transaction", usecols=list(range(6)), ttl=0)
-        all_data = all_data.dropna(how="all")
-        df = all_data[all_data['User'] == st.session_state.username].copy()
+        # --- MYSQL UPDATE: Fetch only the logged-in user's data ---
+        df = run_query("SELECT date, type, description, category, amount, user FROM transactions WHERE user = %s", (st.session_state.username,))
+        # Rename columns to match the capitalization your dashboard expects
+        df.columns = ['Date', 'Type', 'Description', 'Category', 'Amount', 'User']
     except Exception as e:
         st.error(f"Database error: {e}")
         st.stop()
@@ -358,13 +384,14 @@ else:
         if auth_mode == "Log In":
             if st.button("Unlock My Dashboard"):
                 if input_user and input_pass:
-                    users_df = conn.read(worksheet="Users", ttl=0)
-                    users_df.columns = users_df.columns.str.strip()
-                    
+                    # --- MYSQL UPDATE: Securely check login credentials ---
                     hashed_input_pass = hashlib.sha256(input_pass.encode()).hexdigest()
-                    match = users_df[(users_df['Username'] == input_user) & (users_df['Password'].astype(str) == hashed_input_pass)]
+                    users_df = run_query(
+                        "SELECT * FROM users WHERE username = %s AND password = %s", 
+                        (input_user, hashed_input_pass)
+                    )
                     
-                    if not match.empty:
+                    if not users_df.empty:
                         st.session_state.username = input_user
                         st.success("🔓 Access Granted! Loading your financial vault...")
                         st.rerun()
@@ -376,20 +403,21 @@ else:
         elif auth_mode == "Create an Account":
             if st.button("Get Started For Free"):
                 if input_user and input_pass:
-                    users_df = conn.read(worksheet="Users", ttl=0)
-                    users_df.columns = users_df.columns.str.strip()
+                    # --- MYSQL UPDATE: Check for existing user, then insert ---
+                    check_user = run_query("SELECT * FROM users WHERE username = %s", (input_user,))
                     
-                    if input_user in users_df['Username'].values:
+                    if not check_user.empty:
                         st.error("⚠️ That username is already taken. Try another one!")
                     else:
                         hashed_new_pass = hashlib.sha256(input_pass.encode()).hexdigest()
-                        new_user_entry = pd.DataFrame([{"Username": input_user, "Password": hashed_new_pass}])
-                        updated_users = pd.concat([users_df, new_user_entry], ignore_index=True)
-                        conn.update(worksheet="Users", data=updated_users)
-                        
+                        run_command(
+                            "INSERT INTO users (username, password) VALUES (%s, %s)", 
+                            (input_user, hashed_new_pass)
+                        )
                         st.success("🎉 Your vault is ready! Switch over to 'Log In' to get started.")
                 else:
                     st.warning("Please choose a username and password to sign up.")
+                
                 # --- ADD THIS AT THE VERY BOTTOM OF THE SCRIPT ---
                 st.write("") # Adds a little spacing
                 with st.expander("🛡️ Read our Privacy Policy"):
